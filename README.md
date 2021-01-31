@@ -1,2 +1,4 @@
-# PIEBertProbing
-Probing BERT using PIE for idiomatic meaning
+![CiYi](ciyi_logo.png)
+# CiYi (词义)
+A repo for lexical semantics
+
