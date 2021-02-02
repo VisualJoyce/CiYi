@@ -1,6 +1,1 @@
-from ciyi.dataset_readers.sentence_and_span_classification_dataset_reader import \
-    SentenceSpanClassificationDatasetReader
-from ciyi.dataset_readers.sentence_span_sentence_classification_dataset_reader import \
-    SentenceSpanSentenceClassificationDatasetReader
-from ciyi.dataset_readers.sentence_word_dataset_reader import SentenceWordDatasetReader
-from ciyi.dataset_readers.sequence_labeling_dataset_reader import SeqLabelReader
+from ciyi.dataset_readers.span import SpanDatasetReader

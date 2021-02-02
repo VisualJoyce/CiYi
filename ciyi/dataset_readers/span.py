@@ -4,7 +4,7 @@ from typing import Dict
 
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
-from allennlp.data.fields import LabelField, TextField, IndexField, SpanField
+from allennlp.data.fields import LabelField, TextField, SpanField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer
 from allennlp.data.tokenizers import Tokenizer, SpacyTokenizer
@@ -13,18 +13,16 @@ from overrides import overrides
 logger = logging.getLogger(__name__)
 
 
-@DatasetReader.register("sentence_word")
-class SentenceWordDatasetReader(DatasetReader):
+@DatasetReader.register("span")
+class SpanDatasetReader(DatasetReader):
     """
-    Reads a JSON-lines file containing sentences with a target word, and creates a dataset for their classification.
-
-    Expected format for each input line: {"sentence": "text", "target_index": "int", "target_word": "text",
-    "label": "text"}
+    Reads a JSON-lines file containing sentences with a target span and a label.
+    Expected format for each input line: {"sentence": "text", "start": "int", "end": int, "label": "text"}
 
     The output of ``read`` is a list of ``Instance`` s with the fields:
         sentence: ``TextField``
-        target_index: ``int``
-        target_word: ``TextField``
+        span: ``SpanField``
+        span_text: ``TextField``
         label: ``LabelField``
 
     Parameters
@@ -51,22 +49,22 @@ class SentenceWordDatasetReader(DatasetReader):
                     continue
                 curr_example_json = json.loads(line)
                 sentence = curr_example_json['sentence']
-                target_index = curr_example_json['target_index']
-                target_word = curr_example_json['target_word']
+                target_start = curr_example_json['start']
+                target_end = curr_example_json['end']
                 label = curr_example_json['label']
-                yield self.text_to_instance(sentence, target_index, target_word, label)
+                yield self.text_to_instance(sentence, target_start, target_end, label)
 
     @overrides
-    def text_to_instance(self, sentence: str, target_index: int, target_word: str, label: str = None) -> Instance:
+    def text_to_instance(self, sentence: str, start: int, end: int, label: str = None) -> Instance:
         tokenized_sentence = self._tokenizer.tokenize(sentence)
         sentence_field = TextField(tokenized_sentence, self._token_indexers)
-        tokenized_target_word = self._tokenizer.tokenize(target_word)
-        target_word_field = TextField(tokenized_target_word, self._token_indexers)
-        target_index_field = IndexField(target_index, sentence_field)
-        span_field = SpanField(target_index, target_index, sentence_field)
+        span_field = SpanField(start, end, sentence_field)
 
-        fields = {'sentence': sentence_field, 'target_index': target_index_field,
-                  'target_word': target_word_field, 'span_field': span_field}
+        span_text = ' '.join(sentence.split()[start:end + 1])
+        tokenized_span = self._tokenizer.tokenize(span_text)
+        span_text_field = TextField(tokenized_span, self._token_indexers)
+
+        fields = {'sentence': sentence_field, 'span': span_field, 'span_text': span_text_field}
         if label is not None:
             fields['label'] = LabelField(label)
         return Instance(fields)
