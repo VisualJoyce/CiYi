@@ -20,18 +20,18 @@ for i in {0..13}; do
 
   echo "$layer"
 
-  MODEL_NAME="$MODEL_NAME" LAYER="$layer" allennlp train \
+  ANNOTATION_DIR="$ANNOTATION_DIR" MODEL_NAME="$MODEL_NAME" TRANSFORMER_LAYER="$layer" allennlp train \
     "$PROJECT_DIR"/pie_classification_transformer_layer-k_bilm.jsonnet \
     -s "$OUTPUT_DIR"/bert_layer-"${layer}"/bilm \
     --include-package ciyi
 
-  MODEL_NAME="$MODEL_NAME" LAYER="$layer" allennlp evaluate \
+  ANNOTATION_DIR="$ANNOTATION_DIR" MODEL_NAME="$MODEL_NAME" TRANSFORMER_LAYER="$layer" allennlp evaluate \
     "$OUTPUT_DIR"/bert_layer-"${layer}"/bilm/model.tar.gz \
     "$ANNOTATION_DIR"/test.jsonl \
     --output-file "$OUTPUT_DIR"/bert_layer-"${layer}"/bilm/test_results.json \
     --include-package ciyi
 
-  MODEL_NAME="$MODEL_NAME" LAYER="$layer" allennlp predict \
+  ANNOTATION_DIR="$ANNOTATION_DIR" MODEL_NAME="$MODEL_NAME" TRANSFORMER_LAYER="$layer" allennlp predict \
     "$OUTPUT_DIR"/bert_"${layer}"/bilm/model.tar.gz \
     "$ANNOTATION_DIR"/test.jsonl \
     --output-file "$OUTPUT_DIR"/bert_layer-"${layer}"/bilm/test.predictions \

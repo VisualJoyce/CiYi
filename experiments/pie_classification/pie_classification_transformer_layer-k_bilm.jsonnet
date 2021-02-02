@@ -1,5 +1,6 @@
 local TRANSFORMER_LAYER = std.extVar("TRANSFORMER_LAYER");
 local MODEL_NAME = std.extVar("MODEL_NAME");
+local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
 
 {
   "dataset_reader": {
@@ -12,8 +13,8 @@ local MODEL_NAME = std.extVar("MODEL_NAME");
       }
     }
   },
-  "train_data_path": "data/pie_classification/training.jsonl",
-  "validation_data_path": "data/pie_classification/development.jsonl",
+  "train_data_path": ANNOTATION_DIR + "/training.jsonl",
+  "validation_data_path": ANNOTATION_DIR + "/development.jsonl",
   "model": {
     "type": "span_classifier",
     "text_field_embedder": {
