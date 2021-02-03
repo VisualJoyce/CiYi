@@ -32,7 +32,7 @@ for i in {0..13}; do
     --include-package ciyi
 
   ANNOTATION_DIR="$ANNOTATION_DIR" MODEL_NAME="$MODEL_NAME" TRANSFORMER_LAYER="$layer" allennlp predict \
-    "$OUTPUT_DIR"/bert_"${layer}"/bilm/model.tar.gz \
+    "$OUTPUT_DIR"/bert_layer-"${layer}"/bilm/model.tar.gz \
     "$ANNOTATION_DIR"/test.jsonl \
     --output-file "$OUTPUT_DIR"/bert_layer-"${layer}"/bilm/test.predictions \
     --include-package ciyi --predictor span_classifier
