@@ -24,4 +24,4 @@ A repo for lexical semantics
 
 ## Acknowledgement
 We recommend the following repos:
-* (lexcomp) [https://github.com/vered1986/lexcomp]
+* [lexcomp](https://github.com/vered1986/lexcomp)
