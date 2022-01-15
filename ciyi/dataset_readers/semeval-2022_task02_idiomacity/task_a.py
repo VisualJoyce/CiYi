@@ -1,6 +1,7 @@
 import json
 import logging
 from typing import Dict
+import pandas as pda
 
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
@@ -39,50 +40,10 @@ class SpanDatasetReader(DatasetReader):
         self._token_indexers = token_indexers
         self._tokenizer = tokenizer or SpacyTokenizer()
 
-    def parse_start_end(self, doc, span_doc):
-        possesive_form1 = {
-            "one",
-            "someone",
-            "anyone"
-        }
-
-        possesive_form2 = {'my', 'your', 'his', 'her', 'our', 'their'}
-
-        start, end = None, None
-        for i, t in enumerate(doc):
-            j = i
-            trues = []
-            for tt in span_doc:
-                if t.is_punct:
-                    j += 1
-                elif tt.is_punct or tt.text == "'s":
-                    continue
-                else:
-                    checks = [
-                        t.text.lower() == tt.text.lower(),
-                        t.text.lower() in possesive_form2 and tt.text.lower() in possesive_form1,
-                        t.lemma_.lower() == tt.lemma_.lower()
-                    ]
-                    if any(checks):
-                        trues.append(True)
-                    else:
-                        trues.append(False)
-                        break
-                    j += 1
-                t = doc[j]
-            if trues and all(trues):
-                start = i
-                end = j - 1
-                break
-
-        if start is None or end is None:
-            print(doc, span_doc)
-
-        assert start is not None and end is not None
-        return start, end
-
     @overrides
     def _read(self, file_path):
+        df = pda.read_csv(file_path)
+
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
             for line in data_file:
@@ -90,20 +51,15 @@ class SpanDatasetReader(DatasetReader):
                 if not line:
                     continue
                 curr_example_json = json.loads(line)
-                yield self.text_to_instance(curr_example_json)
+                sentence = curr_example_json['sentence']
+                target_start = curr_example_json['start']
+                target_end = curr_example_json['end']
+                label = curr_example_json['label']
+                yield self.text_to_instance(sentence, target_start, target_end, label)
 
     @overrides
-    def text_to_instance(self, example: dict) -> Instance:
-        sentence = example['sentence']
+    def text_to_instance(self, sentence: str, start: int, end: int, label: str = None) -> Instance:
         tokenized_sentence = self._tokenizer.tokenize(sentence)
-        if all([k in example for k in ('start', 'end')]):
-            start = example['start']
-            end = example['end']
-        else:
-            tokenized_span = self._tokenizer.tokenize(example['span'])
-            start, end = self.parse_start_end(tokenized_sentence, tokenized_span)
-
-        label = example['label']
         sentence_field = TextField(tokenized_sentence, self._token_indexers)
         span_field = SpanField(start, end, sentence_field)
 
