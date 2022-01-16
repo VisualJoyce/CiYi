@@ -77,9 +77,8 @@ class SpanDatasetReader(DatasetReader):
                 break
 
         if start is None or end is None:
-            print(doc, span_doc)
+            raise IndexError
 
-        assert start is not None and end is not None
         return start, end
 
     @overrides
