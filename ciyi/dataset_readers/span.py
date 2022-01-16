@@ -39,14 +39,15 @@ class SpanDatasetReader(DatasetReader):
         self._token_indexers = token_indexers
         self._tokenizer = tokenizer or SpacyTokenizer(keep_spacy_tokens=True)
 
-    def parse_start_end(self, doc, span_doc):
-        possesive_form1 = {
+    @staticmethod
+    def parse_start_end(doc, span_doc):
+        possessive_form1 = {
             "one",
             "someone",
             "anyone"
         }
 
-        possesive_form2 = {'my', 'your', 'his', 'her', 'our', 'their'}
+        possessive_form2 = {'my', 'your', 'his', 'her', 'our', 'their'}
 
         start, end = None, None
         for i, t in enumerate(doc):
@@ -60,7 +61,7 @@ class SpanDatasetReader(DatasetReader):
                 else:
                     checks = [
                         t.text.lower() == tt.text.lower(),
-                        t.text.lower() in possesive_form2 and tt.text.lower() in possesive_form1,
+                        t.text.lower() in possessive_form2 and tt.text.lower() in possessive_form1,
                         t.lemma_.lower() == tt.lemma_.lower()
                     ]
                     if any(checks):
@@ -90,7 +91,10 @@ class SpanDatasetReader(DatasetReader):
                 if not line:
                     continue
                 curr_example_json = json.loads(line)
-                yield self.text_to_instance(curr_example_json)
+                try:
+                    yield self.text_to_instance(curr_example_json)
+                except IndexError:
+                    logger.warning(f"Parsing failed: {line}")
 
     @overrides
     def text_to_instance(self, example: dict) -> Instance:
