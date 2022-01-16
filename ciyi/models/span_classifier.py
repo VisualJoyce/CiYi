@@ -77,7 +77,7 @@ class SpanClassifier(Model):
             self._num_labels = vocab.get_vocab_size(namespace=self._label_namespace)
         self._classification_layer = torch.nn.Linear(self._classifier_input_dim, self._num_labels)
         self._accuracy = CategoricalAccuracy()
-        self._f1 = F1Measure()
+        self._f1 = F1Measure(positive_label=1)
         self._loss = torch.nn.CrossEntropyLoss()
         initializer(self)
 
