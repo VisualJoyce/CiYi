@@ -95,13 +95,15 @@ class SpanDatasetReader(DatasetReader):
     @overrides
     def text_to_instance(self, example: dict) -> Instance:
         sentence = example['sentence']
-        tokenized_sentence = self._tokenizer.tokenize(sentence)
+
+        doc = self._tokenizer.spacy(sentence)
         if all([k in example for k in ('start', 'end')]):
             start = example['start']
             end = example['end']
         else:
-            tokenized_span = self._tokenizer.tokenize(example['span'])
-            start, end = self.parse_start_end(tokenized_sentence, tokenized_span)
+            span_doc = self._tokenizer.spacy(sentence)
+            start, end = self.parse_start_end(doc, span_doc)
+        tokenized_sentence = self._tokenizer._sanitize(doc)
 
         label = example['label']
         sentence_field = TextField(tokenized_sentence, self._token_indexers)
