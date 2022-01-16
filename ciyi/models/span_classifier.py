@@ -135,6 +135,7 @@ class SpanClassifier(Model):
             loss = self._loss(logits, label.long().view(-1))
             output_dict["loss"] = loss
             self._accuracy(logits, label)
+            self._f1(logits, label)
 
         return output_dict
 
