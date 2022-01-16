@@ -13,8 +13,8 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
       }
     }
   },
-  "train_data_path": ANNOTATION_DIR + "/training.jsonl",
-  "validation_data_path": ANNOTATION_DIR + "/development.jsonl",
+  "train_data_path": ANNOTATION_DIR + "/train.jsonl",
+  "validation_data_path": ANNOTATION_DIR + "/dev.jsonl",
   "model": {
     "type": "span_classifier",
     "text_field_embedder": {
