@@ -37,7 +37,7 @@ class SpanDatasetReader(DatasetReader):
                  tokenizer: Tokenizer = None) -> None:
         super().__init__()
         self._token_indexers = token_indexers
-        self._tokenizer = tokenizer or SpacyTokenizer()
+        self._tokenizer = tokenizer or SpacyTokenizer(keep_spacy_tokens=True)
 
     def parse_start_end(self, doc, span_doc):
         possesive_form1 = {
