@@ -163,6 +163,6 @@ class SpanClassifier(Model):
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
         metrics = {
             "accuracy": self._accuracy.get_metric(reset),
-            "f1": self._f1.get_metric(reset)
         }
+        metrics.update(self._f1.get_metric(reset))
         return metrics
