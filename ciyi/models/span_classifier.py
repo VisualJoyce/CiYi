@@ -8,7 +8,7 @@ from allennlp.modules import FeedForward, TextFieldEmbedder, Seq2SeqEncoder, Seq
 from allennlp.modules.span_extractors import SpanExtractor
 from allennlp.nn import InitializerApplicator
 from allennlp.nn import util
-from allennlp.training.metrics import CategoricalAccuracy
+from allennlp.training.metrics import CategoricalAccuracy, F1Measure
 from overrides import overrides
 
 
@@ -77,6 +77,7 @@ class SpanClassifier(Model):
             self._num_labels = vocab.get_vocab_size(namespace=self._label_namespace)
         self._classification_layer = torch.nn.Linear(self._classifier_input_dim, self._num_labels)
         self._accuracy = CategoricalAccuracy()
+        self._f1 = F1Measure()
         self._loss = torch.nn.CrossEntropyLoss()
         initializer(self)
 
@@ -159,5 +160,8 @@ class SpanClassifier(Model):
 
     @overrides
     def get_metrics(self, reset: bool = False) -> Dict[str, float]:
-        metrics = {"accuracy": self._accuracy.get_metric(reset)}
+        metrics = {
+            "accuracy": self._accuracy.get_metric(reset),
+            "f1": self._f1.get_metric(reset)
+        }
         return metrics
