@@ -37,10 +37,59 @@ class SpanDatasetReader(DatasetReader):
                  tokenizer: Tokenizer = None) -> None:
         super().__init__()
         self._token_indexers = token_indexers
-        self._tokenizer = tokenizer or SpacyTokenizer()
+        self._tokenizer = tokenizer or SpacyTokenizer(split_on_spaces=True)
+
+    # @staticmethod
+    # def parse_with_offset(doc, span_doc):
+    #
+    #     sentence_words = [token.text for token in doc if not token.is_space]
+    #     sentence = ' '.join(sentence_words)
+    #
+    #     target_paraphrase_words = [token.text for token in span_doc if not token.is_space]
+    #     target_paraphrase = ' '.join(target_paraphrase_words)
+    #
+    #     doc = nlp(sentence)
+    #
+    #     count = sentence.lower().count(target_paraphrase.lower())
+    #     if count == 1:
+    #         offset = sentence.lower().index(target_paraphrase.lower())
+    #     elif count > 1:
+    #         sentence_words_lower = [w.lower() for w in sentence_words]
+    #         p_count = sentence_words_lower.count(target_paraphrase_words[0].lower())
+    #         if p_count == 1:
+    #             left = sentence_words_lower.index(target_paraphrase_words[0].lower())
+    #             offset = doc[left].idx
+    #         else:
+    #             return
+    #     else:
+    #         return
+    #
+    #     start_tokens = [t for t in doc if t.idx == offset]
+    #     if start_tokens:
+    #         start_token = start_tokens[0]
+    #         end_offset = offset + len(target_paraphrase)
+    #         end_tokens = [t for t in doc if t.idx + len(t.text) == end_offset]
+    #         if end_tokens:
+    #             end_token = end_tokens[0]
+    #             d = {
+    #                 'sentence': sentence,
+    #                 'span': span,
+    #                 "offsets": [[t.idx, t.idx + len(t.text)] for t in doc if start_token.i <= t.i <= end_token.i],
+    #             }
+    #             return d
 
     @staticmethod
     def parse_start_end(doc, span_doc):
+
+        # context = sentence1.replace("-", " ").split()
+        # span = sentence2.replace("-", " ").split()
+        # cost = np.zeros((len(context), len(span)))
+        # for i, aw in enumerate(context):
+        #     for j, dw in enumerate(span):
+        #         cost[i, j] = -jaro_winkler(aw, dw)
+        #
+        # row_ind, col_ind = linear_sum_assignment(cost)
+        # print(row_ind, col_ind, context[row_ind:col_ind])
         possessive_form1 = {
             "one",
             "someone",
@@ -62,7 +111,9 @@ class SpanDatasetReader(DatasetReader):
                     checks = [
                         t.text.lower() == tt.text.lower(),
                         t.text.lower() in possessive_form2 and tt.text.lower() in possessive_form1,
-                        t.lemma_.lower() == tt.lemma_.lower()
+                        t.lemma_.lower() == tt.lemma_.lower(),
+                        t.lemma_.lower() in tt.lemma_.lower(),
+                        tt.lemma_.lower() in t.lemma_.lower(),
                     ]
                     if any(checks):
                         trues.append(True)
@@ -99,13 +150,15 @@ class SpanDatasetReader(DatasetReader):
     def text_to_instance(self, example: dict) -> Instance:
         sentence = example['sentence']
 
-        doc = self._tokenizer.spacy(sentence)
         if all([k in example for k in ('start', 'end')]):
+            doc = self._tokenizer.spacy(sentence)
             start = example['start']
             end = example['end']
         else:
-            span_doc = self._tokenizer.spacy(sentence)
+            doc = self._tokenizer.spacy(sentence.replace("-", " "))
+            span_doc = self._tokenizer.spacy(sentence.replace("-", " "))
             start, end = self.parse_start_end(doc, span_doc)
+
         tokenized_sentence = self._tokenizer._sanitize(doc)
 
         label = example['label']
