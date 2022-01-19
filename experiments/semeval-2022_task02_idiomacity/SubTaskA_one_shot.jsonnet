@@ -11,6 +11,10 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
         "max_length": 512,
         "model_name": MODEL_NAME
       }
+    },
+    "spacy_languages": {
+        "en": "en_core_web_sm",
+        "pt": "pt_core_news_sm",
     }
   },
   "train_data_path": ANNOTATION_DIR + "/train.jsonl",

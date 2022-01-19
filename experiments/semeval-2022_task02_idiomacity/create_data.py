@@ -36,12 +36,14 @@ def _get_train_data(data_location, file_name, include_context, include_idiom):
     # ['DataID', 'Language', 'MWE', 'Setting', 'Previous', 'Target', 'Next', 'Label']
     for elem in data:
         label = elem[header.index('Label')]
+        lang = elem[header.index('Language')]
         sentence1 = elem[header.index('Target')]
         if include_context:
             sentence1 = ' '.join(
                 [elem[header.index('Previous')], elem[header.index('Target')], elem[header.index('Next')]])
         sentence2 = elem[header.index('MWE')]
         yield {
+            'lang': lang,
             'label': label,
             'sentence': sentence1,
             'span': sentence2
@@ -74,7 +76,9 @@ def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_c
                                   elem[input_headers.index('Next')]])
 
         sentence2 = elem[input_headers.index('MWE')]
+        lang = elem[input_headers.index('Language')]
         yield {
+            'lang': lang,
             'label': label,
             'sentence': sentence1,
             'span': sentence2
