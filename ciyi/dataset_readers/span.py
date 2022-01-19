@@ -32,7 +32,7 @@ class SpanDatasetReader(DatasetReader):
     Parameters
     ----------
     token_indexers : ``Dict[str, TokenIndexer]``
-    tokenizer : ``Tokenizer``, optional
+    spacy_languages: ``Dict[str, str]``, optional
         Tokenizer to use to split the sentence into words. Defaults to ``WordTokenizer()``.
     """
 
@@ -42,39 +42,36 @@ class SpanDatasetReader(DatasetReader):
         self._tokenizer = WhitespaceTokenizer()
         self.nlp_dict = {k: spacy.load(v) for k, v in spacy_languages.items()}
 
-    @staticmethod
-    def parse_with_offset(nlp, sentence, span):
+    def clean_text(self, nlp, text):
+        doc = nlp(text.replace("-", " "))
+        words = [token.text for token in doc if not token.is_space]
+        return ' '.join(words)
 
-        doc = nlp(sentence.replace("-", " "))
-        span_doc = nlp(span.replace("-", " "))
+    def parse_with_offset(self, nlp, sentence, span):
 
-        sentence_words = [token.text for token in doc if not token.is_space]
-        sentence = ' '.join(sentence_words)
-
-        target_paraphrase_words = [token.text for token in span_doc if not token.is_space]
-        target_paraphrase = ' '.join(target_paraphrase_words)
+        sentence = self.clean_text(nlp, sentence)
+        span = self.clean_text(nlp, span)
 
         doc = nlp(sentence)
+        span_doc = nlp(span)
 
-        score = np.zeros(len(sentence_words))
-        for i, text_window in enumerate(windowed(sentence_words, len(target_paraphrase_words))):
-            for t, s in zip(text_window, target_paraphrase_words):
-                score[i] += distance(t.lower(), s.lower())
+        score = np.zeros(len(doc) - 1)
+        for i, text_window in enumerate(windowed(doc, len(span_doc))):
+            for t, s in zip(text_window, [t for t in span_doc]):
+                score[i] += distance(t.lower_, s.lower_)
         start_idx = score.argmin()
         start_token = doc[start_idx]
         offset = start_token.idx
-        end_offset = offset + len(target_paraphrase)
+        end_offset = offset + len(span)
         end_tokens = [t for t in doc if t.idx <= end_offset <= t.idx + len(t.text)]
         end_token = end_tokens[0]
-        d = {
+        return {
             'sentence': sentence,
             'span': span,
             "offsets": [[t.idx, t.idx + len(t.text)] for t in doc if start_token.i <= t.i <= end_token.i],
             "start": start_token.i,
             "end": end_token.i,
         }
-
-        return d
 
     @overrides
     def _read(self, file_path):
