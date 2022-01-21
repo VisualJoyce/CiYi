@@ -4,12 +4,12 @@ import sys
 
 from allennlp.commands import main
 
-config_file = "experiments/semeval-2022_task02_idiomacity/SubTaskA_one_shot.jsonnet"
+config_file = "experiments/semeval-2022_task02_idiomacity/subtask_a/zero_shot_finetune.jsonnet"
 
 # Use overrides to train on CPU.
 # overrides = json.dumps({"trainer": {"cuda_device": -1}})
 
-serialization_dir = "data/output/semeval-2022_task02_idiomacity/SubTaskA_one_shot"
+serialization_dir = "data/output/semeval-2022_task02_idiomacity/SubTaskA/zero_shot/finetune"
 
 # Training will fail if the serialization directory already
 # has stuff in it. If you are running the same training loop
