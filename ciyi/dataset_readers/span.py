@@ -4,14 +4,14 @@ from typing import Dict
 
 import numpy as np
 import spacy
-from more_itertools import windowed
 from Levenshtein import distance
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
 from allennlp.data.fields import LabelField, TextField, SpanField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer
-from allennlp.data.tokenizers import Tokenizer, WhitespaceTokenizer
+from allennlp.data.tokenizers import WhitespaceTokenizer
+from more_itertools import windowed
 from overrides import overrides
 
 logger = logging.getLogger(__name__)
@@ -83,18 +83,17 @@ class SpanDatasetReader(DatasetReader):
                     continue
                 curr_example_json = json.loads(line)
                 try:
-                    if not all([k in curr_example_json for k in ('start', 'end')]):
-                        lang = curr_example_json['lang'].lower()
-                        nlp = self.nlp_dict.get(lang)
-                        curr_example_json.update(self.parse_with_offset(nlp,
-                                                                        curr_example_json['sentence'],
-                                                                        curr_example_json['span']))
                     yield self.text_to_instance(curr_example_json)
                 except IndexError:
                     logger.warning(f"Parsing failed: {line}")
 
     @overrides
     def text_to_instance(self, example: dict) -> Instance:
+        if not all([k in example for k in ('start', 'end')]):
+            lang = example['lang'].lower()
+            nlp = self.nlp_dict.get(lang)
+            example.update(self.parse_with_offset(nlp, example['sentence'], example['span']))
+
         sentence = example['sentence']
         start = example['start']
         end = example['end']
