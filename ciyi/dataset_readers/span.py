@@ -97,7 +97,6 @@ class SpanDatasetReader(DatasetReader):
         sentence = example['sentence']
         start = example['start']
         end = example['end']
-        label = example['label']
 
         tokenized_sentence = self._tokenizer.tokenize(sentence)
         sentence_field = TextField(tokenized_sentence, self._token_indexers)
@@ -108,6 +107,8 @@ class SpanDatasetReader(DatasetReader):
         span_text_field = TextField(tokenized_span, self._token_indexers)
 
         fields = {'sentence': sentence_field, 'span': span_field, 'span_text': span_text_field}
+
+        label = example.get('label')
         if label is not None:
             fields['label'] = LabelField(label)
         return Instance(fields)

@@ -61,7 +61,7 @@ def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_c
     # ['ID', 'DataID', 'Language', 'Label']
 
     for index in range(len(input_data)):
-        label = 1
+        label = "1"
         if not gold_file_name is None:
             this_input_id = input_data[index][input_headers.index('ID')]
             this_gold_id = gold_data[index][gold_header.index('ID')]
