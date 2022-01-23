@@ -36,11 +36,15 @@ class SpanDatasetReader(DatasetReader):
         Tokenizer to use to split the sentence into words. Defaults to ``WordTokenizer()``.
     """
 
-    def __init__(self, token_indexers: Dict[str, TokenIndexer], spacy_languages: Dict[str, str]) -> None:
+    def __init__(self,
+                 token_indexers: Dict[str, TokenIndexer],
+                 spacy_languages: Dict[str, str],
+                 skip_label_indexing=False) -> None:
         super().__init__()
         self._token_indexers = token_indexers
         self._tokenizer = WhitespaceTokenizer()
         self.nlp_dict = {k: spacy.load(v) for k, v in spacy_languages.items()}
+        self.skip_label_indexing = skip_label_indexing
 
     def clean_text(self, nlp, text):
         doc = nlp(text.replace("-", " "))

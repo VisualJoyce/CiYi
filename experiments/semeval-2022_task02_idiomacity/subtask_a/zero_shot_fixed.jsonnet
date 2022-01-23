@@ -15,7 +15,8 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
     "spacy_languages": {
         "en": "en_core_web_sm",
         "pt": "pt_core_news_sm",
-    }
+    },
+    "skip_label_indexing": true
   },
   "train_data_path": ANNOTATION_DIR + "/train.jsonl",
   "validation_data_path": ANNOTATION_DIR + "/dev.jsonl",
