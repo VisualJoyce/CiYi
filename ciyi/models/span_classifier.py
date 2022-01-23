@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
-from allennlp.modules import FeedForward, TextFieldEmbedder, Seq2SeqEncoder, Seq2VecEncoder
+from allennlp.modules import FeedForward, TextFieldEmbedder, Seq2SeqEncoder
 from allennlp.modules.span_extractors import SpanExtractor
 from allennlp.nn import InitializerApplicator
 from allennlp.nn import util
@@ -85,7 +85,8 @@ class SpanClassifier(Model):
                 sentence: Dict[str, torch.LongTensor],
                 span: torch.LongTensor,
                 span_text: Dict[str, torch.LongTensor],
-                label: torch.LongTensor = None) -> Dict[str, torch.Tensor]:
+                label: torch.LongTensor = None,
+                metadata=None) -> Dict[str, torch.Tensor]:
         # pylint: disable=arguments-differ
         """
         Parameters
@@ -129,7 +130,7 @@ class SpanClassifier(Model):
         logits = self._classification_layer(embedded_text)
         probs = torch.nn.functional.softmax(logits, dim=-1)
 
-        output_dict = {"logits": logits, "probs": probs}
+        output_dict = {"logits": logits, "probs": probs, "metadata": metadata}
         # output_dict["token_ids"] = util.get_token_ids_from_text_field_tensors(tokens)
         if label is not None:
             loss = self._loss(logits, label.long().view(-1))

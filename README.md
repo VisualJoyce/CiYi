@@ -22,6 +22,23 @@ A repo for lexical semantics
 }
 ```
 
+## PIE Classification
+
+## SemEval 2022 Task 2
+Multilingual Idiomaticity Detection and Sentence Embedding
+
+### Subtask A
+
+```shell
+TRANSFORMER_LAYER=12 ANNOTATION_DIR=data/annotations/semeval-2022_task02_idiomacity/subtask_a/ZeroShot \
+MODEL_NAME=bert-base-multilingual-cased LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/anaconda3/lib \
+allennlp predict data/output/semeval-2022_task02_idiomacity/SubTaskA/zero_shot/finetune/model.tar.gz \
+data/annotations/semeval-2022_task02_idiomacity/subtask_a/ZeroShot/eval.jsonl \
+--predictor semeval-2022_task02_idiomacity_subtask_a \
+--output-file data/output/semeval-2022_task02_idiomacity/SubTaskA/zero_shot/finetune/eval_predict.csv \
+--include-package ciyi --cuda-device 0
+```
+
 ## Acknowledgement
 We recommend the following repos:
 * [lexcomp](https://github.com/vered1986/lexcomp)

@@ -7,7 +7,7 @@ import spacy
 from Levenshtein import distance
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
-from allennlp.data.fields import LabelField, TextField, SpanField
+from allennlp.data.fields import LabelField, TextField, SpanField, MetadataField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer
 from allennlp.data.tokenizers import WhitespaceTokenizer
@@ -106,7 +106,12 @@ class SpanDatasetReader(DatasetReader):
         tokenized_span = self._tokenizer.tokenize(span_text)
         span_text_field = TextField(tokenized_span, self._token_indexers)
 
-        fields = {'sentence': sentence_field, 'span': span_field, 'span_text': span_text_field}
+        fields = {
+            'metadata': MetadataField(example),
+            'sentence': sentence_field,
+            'span': span_field,
+            'span_text': span_text_field
+        }
 
         label = example.get('label')
         if label is not None:

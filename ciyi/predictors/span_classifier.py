@@ -26,4 +26,4 @@ class SpanClassifierPredictor(SpanClassifierPredictor):
         If you don't want your outputs in JSON-lines format
         you can override this function to output them differently.
         """
-        return f"{outputs['ID']},{outputs['lang']},{outputs['Setting']},{outputs['label']}"
+        return f"{outputs['metadata']['ID']},{outputs['metadata']['Language']},{outputs['metadata']['Setting']},{outputs['label']}\n"
