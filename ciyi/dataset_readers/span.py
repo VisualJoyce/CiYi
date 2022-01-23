@@ -119,5 +119,5 @@ class SpanDatasetReader(DatasetReader):
 
         label = example.get('label')
         if label is not None:
-            fields['label'] = LabelField(label)
+            fields['label'] = LabelField(label, skip_indexing=self.skip_label_indexing)
         return Instance(fields)
