@@ -1,88 +1,53 @@
 import argparse
-import csv
 import os
 from itertools import chain
 from pathlib import Path
 
 import jsonlines
-
-
-def load_csv(path, delimiter=','):
-    header = None
-    data = list()
-    with open(path, encoding='utf-8') as csvfile:
-        reader = csv.reader(csvfile, delimiter=delimiter)
-        for row in reader:
-            if header is None:
-                header = row
-                continue
-            data.append(row)
-    return header, data
-
-
-def write_csv(data, location):
-    with open(location, 'w', encoding='utf-8') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerows(data)
-    print("Wrote {}".format(location))
-    return
+import pandas as pda
 
 
 def _get_train_data(data_location, file_name, include_context, include_idiom):
     file_name = os.path.join(data_location, file_name)
 
-    header, data = load_csv(file_name)
+    df = pda.read_csv(file_name, sep=",")
+    if include_context:
+        df['sentence'] = df.Previous + df.Target + df.Next
+    else:
+        df['sentence'] = df.Target
 
     # ['DataID', 'Language', 'MWE', 'Setting', 'Previous', 'Target', 'Next', 'Label']
-    for elem in data:
-        label = elem[header.index('Label')]
-        lang = elem[header.index('Language')]
-        sentence1 = elem[header.index('Target')]
-        if include_context:
-            sentence1 = ' '.join(
-                [elem[header.index('Previous')], elem[header.index('Target')], elem[header.index('Next')]])
-        sentence2 = elem[header.index('MWE')]
-        yield {
-            'lang': lang,
-            'label': label,
-            'sentence': sentence1,
-            'span': sentence2
-        }
+    for elem in df.to_dict('records'):
+        elem['span'] = elem['MWE']
+        elem['label'] = elem['Label']
+        elem['lang'] = elem['Language']
+        yield elem
 
 
 def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_context, include_idiom):
-    input_headers, input_data = load_csv(os.path.join(data_location, input_file_name))
-    gold_header = gold_data = None
-    if not gold_file_name is None:
-        gold_header, gold_data = load_csv(os.path.join(data_location, gold_file_name))
-        assert len(input_data) == len(gold_data)
-
     # ['ID', 'Language', 'MWE', 'Previous', 'Target', 'Next']
     # ['ID', 'DataID', 'Language', 'Label']
+    df = pda.read_csv(os.path.join(data_location, input_file_name),
+                            sep=',')
+    if not gold_file_name is None:
+        df_gold = pda.read_csv(os.path.join(data_location, gold_file_name), sep=",",
+                            index_col='ID')
+        assert df.shape[0] == df_gold.shape[0]
+        df= df.join(df_gold, on='ID', rsuffix='_gold')
+    else:
+        df['Label'] = '1'
 
-    for index in range(len(input_data)):
-        label = "1"
-        if not gold_file_name is None:
-            this_input_id = input_data[index][input_headers.index('ID')]
-            this_gold_id = gold_data[index][gold_header.index('ID')]
-            assert this_input_id == this_gold_id
+    if include_context:
+        df['sentence'] = df.Previous + df.Target + df.Next
+    else:
+        df['sentence'] = df.Target
 
-            label = gold_data[index][gold_header.index('Label')]
-
-        elem = input_data[index]
-        sentence1 = elem[input_headers.index('Target')]
-        if include_context:
-            sentence1 = ' '.join([elem[input_headers.index('Previous')], elem[input_headers.index('Target')],
-                                  elem[input_headers.index('Next')]])
-
-        sentence2 = elem[input_headers.index('MWE')]
-        lang = elem[input_headers.index('Language')]
-        yield {
-            'lang': lang,
-            'label': label,
-            'sentence': sentence1,
-            'span': sentence2
-        }
+    # ['DataID', 'Language', 'MWE', 'Setting', 'Previous', 'Target', 'Next', 'Label']
+    for elem in df.to_dict('records'):
+        elem['span'] = elem['MWE']
+        elem['label'] = elem['Label']
+        elem['lang'] = elem['Language']
+        yield elem
 
 
 """
@@ -99,6 +64,7 @@ def create_data(input_location, output_location):
                 include_context=True,
                 include_idiom=False
         ):
+            item['Setting'] = "zero_shot"
             writer.write(item)
 
     with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'dev.jsonl'), "w") as writer:
@@ -109,6 +75,7 @@ def create_data(input_location, output_location):
                 include_context=True,
                 include_idiom=False
         ):
+            item['Setting'] = "zero_shot"
             writer.write(item)
 
     with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'eval.jsonl'), "w") as writer:
@@ -119,6 +86,7 @@ def create_data(input_location, output_location):
                 include_context=True,
                 include_idiom=False
         ):
+            item['Setting'] = "zero_shot"
             writer.write(item)
 
     ## OneShot Data (combine both for training)
@@ -135,6 +103,7 @@ def create_data(input_location, output_location):
                     include_context=False,
                     include_idiom=True
                 )):
+            item['Setting'] = "one_shot"
             writer.write(item)
 
     with jsonlines.open(os.path.join(output_location, 'OneShot', 'dev.jsonl'), 'w') as writer:
@@ -145,6 +114,7 @@ def create_data(input_location, output_location):
                 include_context=False,
                 include_idiom=True
         ):
+            item['Setting'] = "one_shot"
             writer.write(item)
 
     with jsonlines.open(os.path.join(output_location, 'OneShot', 'eval.jsonl'), 'w') as writer:
@@ -155,6 +125,7 @@ def create_data(input_location, output_location):
                 include_context=False,
                 include_idiom=True
         ):
+            item['Setting'] = "one_shot"
             writer.write(item)
 
 
