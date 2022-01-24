@@ -27,6 +27,11 @@ A repo for lexical semantics
 ## SemEval 2022 Task 2
 Multilingual Idiomaticity Detection and Sentence Embedding
 
+### Data Preprocess
+```shell
+python experiments/semeval-2022_task02_idiomacity/create_data.py --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskA/Data --output_location data/annotations/semeval-2022_task02_idiomacity/subtask_a
+```
+
 ### Subtask A
 
 ```shell
