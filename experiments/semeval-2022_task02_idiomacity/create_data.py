@@ -35,7 +35,7 @@ def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_c
         assert df.shape[0] == df_gold.shape[0]
         df= df.join(df_gold, on='ID', rsuffix='_gold')
     else:
-        df['Label'] = '1'
+        df['Label'] = 1
 
     if include_context:
         df['sentence'] = df.Previous + df.Target + df.Next
