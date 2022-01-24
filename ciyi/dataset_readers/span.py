@@ -104,7 +104,7 @@ class SpanDatasetReader(DatasetReader):
 
         tokenized_sentence = self._tokenizer.tokenize(sentence)
         sentence_field = TextField(tokenized_sentence, self._token_indexers)
-        span_field = SpanField(start, end, sentence_field)
+        span_field = SpanField(start, min(end, sentence_field.sequence_length() - 1), sentence_field)
 
         span_text = ' '.join(sentence.split()[start:end + 1])
         tokenized_span = self._tokenizer.tokenize(span_text)
