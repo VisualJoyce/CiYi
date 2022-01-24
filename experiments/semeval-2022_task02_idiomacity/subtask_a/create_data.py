@@ -12,6 +12,8 @@ def _get_train_data(data_location, file_name, include_context, include_idiom):
 
     df = pda.read_csv(file_name, sep=",")
     if include_context:
+        df.Previous.fillna('', inplace=True)
+        df.Next.fillna('', inplace=True)
         df['sentence'] = df.Previous + df.Target + df.Next
     else:
         df['sentence'] = df.Target
@@ -38,6 +40,8 @@ def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_c
         df['Label'] = 1
 
     if include_context:
+        df.Previous.fillna('', inplace=True)
+        df.Next.fillna('', inplace=True)
         df['sentence'] = df.Previous + df.Target + df.Next
     else:
         df['sentence'] = df.Target
