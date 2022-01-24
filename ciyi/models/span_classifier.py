@@ -155,8 +155,11 @@ class SpanClassifier(Model):
         if np.isscalar(argmax_indices):
             argmax_indices = [argmax_indices]
 
-        labels = [self.vocab.get_token_from_index(x, namespace="labels")
+        if not output_dict['metadata']['skip_indexing']:
+            labels = [self.vocab.get_token_from_index(x, namespace="labels")
                   for x in argmax_indices]
+        else:
+            labels = argmax_indices
         output_dict['label'] = labels
         return output_dict
 

@@ -111,7 +111,6 @@ class SpanDatasetReader(DatasetReader):
         span_text_field = TextField(tokenized_span, self._token_indexers)
 
         fields = {
-            'metadata': MetadataField(example),
             'sentence': sentence_field,
             'span': span_field,
             'span_text': span_text_field
@@ -120,4 +119,7 @@ class SpanDatasetReader(DatasetReader):
         label = example.get('label')
         if label is not None:
             fields['label'] = LabelField(label, skip_indexing=self.skip_label_indexing)
+
+        example['skip_indexing'] = self.skip_label_indexing
+        fields['metadata'] = MetadataField(example)
         return Instance(fields)
