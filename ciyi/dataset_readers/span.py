@@ -97,7 +97,7 @@ class SpanDatasetReader(DatasetReader):
     def text_to_instance(self, example: dict) -> Instance:
         if not all([k in example for k in ('start', 'end')]):
             lang = example['lang'].lower()
-            nlp = self.nlp_dict.get(lang)
+            nlp = self.nlp_dict.get(lang, self.nlp_dict['en'])
             example.update(self.parse_with_offset(nlp, example['sentence'], example['span']))
 
         sentence = example['sentence']
