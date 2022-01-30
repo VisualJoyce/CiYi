@@ -23,6 +23,7 @@ def _get_train_data(data_location, file_name, include_context, include_idiom):
         elem['span'] = elem['MWE']
         elem['label'] = elem['Label']
         elem['lang'] = elem['Language']
+        elem['sentence'] = elem['sentence'].replace("\n", " ")
         yield elem
 
 
@@ -51,6 +52,7 @@ def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_c
         elem['span'] = elem['MWE']
         elem['label'] = elem['Label']
         elem['lang'] = elem['Language']
+        elem['sentence'] = elem['sentence'].replace("\n", " ")
         yield elem
 
 
