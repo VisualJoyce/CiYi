@@ -78,7 +78,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
         "type": "polynomial_decay",
     },
     "grad_norm": 1.0,
-    "num_epochs": 150,
+    "num_epochs": 5,
     "patience" : 30,
     "num_gradient_accumulation_steps": 8,
     "cuda_device": 0,

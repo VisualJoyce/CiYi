@@ -30,12 +30,12 @@ def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_c
     # ['ID', 'Language', 'MWE', 'Previous', 'Target', 'Next']
     # ['ID', 'DataID', 'Language', 'Label']
     df = pda.read_csv(os.path.join(data_location, input_file_name),
-                            sep=',')
+                      sep=',')
     if not gold_file_name is None:
         df_gold = pda.read_csv(os.path.join(data_location, gold_file_name), sep=",",
-                            index_col='ID')
+                               index_col='ID')
         assert df.shape[0] == df_gold.shape[0]
-        df= df.join(df_gold, on='ID', rsuffix='_gold')
+        df = df.join(df_gold, on='ID', rsuffix='_gold')
     else:
         df['Label'] = 1
 
@@ -63,7 +63,7 @@ def create_data(input_location, output_location):
     ## Zero shot data
     with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'train.jsonl'), "w") as writer:
         for item in _get_train_data(
-                data_location=input_location,
+                data_location=os.path.join(input_location, "Data"),
                 file_name='train_zero_shot.csv',
                 include_context=True,
                 include_idiom=False
@@ -73,7 +73,7 @@ def create_data(input_location, output_location):
 
     with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'dev.jsonl'), "w") as writer:
         for item in _get_dev_eval_data(
-                data_location=input_location,
+                data_location=os.path.join(input_location, "Data"),
                 input_file_name='dev.csv',
                 gold_file_name='dev_gold.csv',
                 include_context=True,
@@ -84,7 +84,7 @@ def create_data(input_location, output_location):
 
     with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'eval.jsonl'), "w") as writer:
         for item in _get_dev_eval_data(
-                data_location=input_location,
+                data_location=os.path.join(input_location, "Data"),
                 input_file_name='eval.csv',
                 gold_file_name=None,  ## Don't have gold evaluation file -- submit to CodaLab
                 include_context=True,
@@ -93,26 +93,60 @@ def create_data(input_location, output_location):
             item['Setting'] = "zero_shot"
             writer.write(item)
 
-    ## OneShot Data (combine both for training)
-    with jsonlines.open(os.path.join(output_location, 'OneShot', 'train.jsonl'), 'w') as writer:
-        for item in chain(
-                _get_train_data(
-                    data_location=input_location,
-                    file_name='train_zero_shot.csv',
-                    include_context=False,
-                    include_idiom=True),
-                _get_train_data(
-                    data_location=input_location,
-                    file_name='train_one_shot.csv',
-                    include_context=False,
-                    include_idiom=True
-                )):
-            item['Setting'] = "one_shot"
-            writer.write(item)
+    if args.phase == 'practice':
+        ## OneShot Data (combine both for training)
+        with jsonlines.open(os.path.join(output_location, 'OneShot', 'train.jsonl'), 'w') as writer:
+            for item in chain(
+                    _get_train_data(
+                        data_location=os.path.join(input_location, 'Data'),
+                        file_name='train_zero_shot.csv',
+                        include_context=False,
+                        include_idiom=True),
+                    _get_train_data(
+                        data_location=os.path.join(input_location, 'Data'),
+                        file_name='train_one_shot.csv',
+                        include_context=False,
+                        include_idiom=True
+                    )):
+                item['Setting'] = "one_shot"
+                writer.write(item)
+    elif args.phase == 'evaluation':
+        with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'test.jsonl'), "w") as writer:
+            for item in _get_dev_eval_data(
+                    data_location=os.path.join(input_location, "TestData"),
+                    input_file_name='test.csv',
+                    gold_file_name=None,  ## Don't have gold evaluation file -- submit to CodaLab
+                    include_context=True,
+                    include_idiom=False
+            ):
+                item['Setting'] = "zero_shot"
+                writer.write(item)
+
+        ## OneShot Data (combine all for training)
+        with jsonlines.open(os.path.join(output_location, 'OneShot', 'train.jsonl'), 'w') as writer:
+            for item in chain(
+                    _get_train_data(
+                        data_location=os.path.join(input_location, 'Data'),
+                        file_name='train_zero_shot.csv',
+                        include_context=False,
+                        include_idiom=True),
+                    _get_train_data(
+                        data_location=os.path.join(input_location, 'Data'),
+                        file_name='train_one_shot.csv',
+                        include_context=False,
+                        include_idiom=True),
+                    _get_train_data(
+                        data_location=os.path.join(input_location, 'TestData'),
+                        file_name='train_one_shot.csv',
+                        include_context=False,
+                        include_idiom=True
+                    )):
+                item['Setting'] = "one_shot"
+                writer.write(item)
 
     with jsonlines.open(os.path.join(output_location, 'OneShot', 'dev.jsonl'), 'w') as writer:
         for item in _get_dev_eval_data(
-                data_location=input_location,
+                data_location=os.path.join(input_location, "Data"),
                 input_file_name='dev.csv',
                 gold_file_name='dev_gold.csv',
                 include_context=False,
@@ -123,7 +157,7 @@ def create_data(input_location, output_location):
 
     with jsonlines.open(os.path.join(output_location, 'OneShot', 'eval.jsonl'), 'w') as writer:
         for item in _get_dev_eval_data(
-                data_location=input_location,
+                data_location=os.path.join(input_location, "Data"),
                 input_file_name='eval.csv',
                 gold_file_name=None,
                 include_context=False,
@@ -137,9 +171,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--input_location', help='JSON config files')
     parser.add_argument('--output_location', help='JSON config files')
+    parser.add_argument('--phase', choices=['practice', 'evaluation', 'post-evaluation'], help='JSON config files')
     args = parser.parse_args()
 
-    Path(os.path.join(args.output_location, 'ZeroShot')).mkdir(parents=True, exist_ok=True)
-    Path(os.path.join(args.output_location, 'OneShot')).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(args.output_location, args.phase, 'ZeroShot')).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(args.output_location, args.phase, 'OneShot')).mkdir(parents=True, exist_ok=True)
 
     create_data(args.input_location, args.output_location)
