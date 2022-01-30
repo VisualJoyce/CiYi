@@ -17,10 +17,10 @@ do
   do
     TRANSFORMER_LAYER=12 ANNOTATION_DIR=data/annotations/semeval-2022_task02_idiomacity/subtask_a/"$PHASE_NAME"/"$d" \
     allennlp predict \
-    data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$s"/"$d"/finetune/"$MODEL_NAME"/model.tar.gz \
+    data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$d"/finetune/"$MODEL_NAME"/model.tar.gz \
     data/annotations/semeval-2022_task02_idiomacity/subtask_a/"$d"/eval.jsonl \
     --predictor semeval-2022_task02_idiomacity_subtask_a \
-    --output-file data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$s"/"$d"/finetune/"$MODEL_NAME"/eval_predict.csv \
+    --output-file data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$d"/finetune/"$MODEL_NAME"/"$s"_predict.csv \
     --include-package ciyi --cuda-device 0
   done
 done
