@@ -174,7 +174,9 @@ if __name__ == '__main__':
     parser.add_argument('--phase', choices=['practice', 'evaluation', 'post-evaluation'], help='JSON config files')
     args = parser.parse_args()
 
-    Path(os.path.join(args.output_location, args.phase, 'ZeroShot')).mkdir(parents=True, exist_ok=True)
-    Path(os.path.join(args.output_location, args.phase, 'OneShot')).mkdir(parents=True, exist_ok=True)
+    output_location = os.path.join(args.output_location, args.phase)
 
-    create_data(args.input_location, args.output_location)
+    Path(os.path.join(output_location, 'ZeroShot')).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(output_location, 'OneShot')).mkdir(parents=True, exist_ok=True)
+
+    create_data(args.input_location, output_location)
