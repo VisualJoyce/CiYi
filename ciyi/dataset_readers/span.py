@@ -90,6 +90,8 @@ class SpanDatasetReader(DatasetReader):
                     yield self.text_to_instance(curr_example_json)
                 except IndexError:
                     logger.warning(f"Parsing failed: {line}")
+                except TypeError:
+                    logger.warning(f"Parsing failed: {line}")
 
     @overrides
     def text_to_instance(self, example: dict) -> Instance:
