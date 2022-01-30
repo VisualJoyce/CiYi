@@ -122,6 +122,17 @@ def create_data(input_location, output_location):
                 item['Setting'] = "zero_shot"
                 writer.write(item)
 
+        with jsonlines.open(os.path.join(output_location, 'OneShot', 'test.jsonl'), "w") as writer:
+            for item in _get_dev_eval_data(
+                    data_location=os.path.join(input_location, "TestData"),
+                    input_file_name='test.csv',
+                    gold_file_name=None,  ## Don't have gold evaluation file -- submit to CodaLab
+                    include_context=True,
+                    include_idiom=False
+            ):
+                item['Setting'] = "one_shot"
+                writer.write(item)
+
         ## OneShot Data (combine all for training)
         with jsonlines.open(os.path.join(output_location, 'OneShot', 'train.jsonl'), 'w') as writer:
             for item in chain(
