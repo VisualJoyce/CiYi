@@ -46,7 +46,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
   "data_loader": {
     "batch_sampler": {
       "type": "bucket",
-      "batch_size": 100
+      "batch_size": 50
     }
   },
   "trainer": {
@@ -65,6 +65,6 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
     "patience" : 30,
     "num_gradient_accumulation_steps": 8,
     "cuda_device": 0,
-    "validation_metric": "+f1"
+    "validation_metric": "+spearman_correlation"
   }
 }
