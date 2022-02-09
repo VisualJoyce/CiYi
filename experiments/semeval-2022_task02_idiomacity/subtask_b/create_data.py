@@ -19,7 +19,7 @@ def create_pretrain(sts_dataset_path, output_location, languages):
             for row in reader:
                 score = float(row['score']) / 5.0  # Normalize score to range 0 ... 1
                 inp_example = {
-                    "language": "EN",
+                    "lang": "EN",
                     "sentence1": row['sentence1'],
                     "sentence2": row['sentence2'],
                     "label": score
@@ -39,7 +39,7 @@ def create_pretrain(sts_dataset_path, output_location, languages):
                 ## {'entailment_judgment': 1, 'hypothesis': 'Uma criança está segurando uma pistola de água', 'premise': 'Uma criança risonha está segurando uma pistola de água e sendo espirrada com água', 'relatedness_score': 4.5, 'sentence_pair_id': 1}
                 score = float(elem['relatedness_score']) / 5.0  # Normalize score to range 0 ... 1
                 inp_example = {
-                    "language": "PT",
+                    "lang": "PT",
                     "sentence1": elem['hypothesis'],
                     "sentence2": elem['premise'],
                     "label": score
