@@ -30,7 +30,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
           "max_length": 512,
           "last_layer_only": false,
           "transformer_layer": TRANSFORMER_LAYER,
-          "train_parameters": false
+          "train_parameters": true
         }
       }
     },
@@ -69,7 +69,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
   "trainer": {
     "optimizer": {
         "type": "huggingface_adamw",
-        "lr": 3e-5,
+        "lr": 5e-5,
         "betas": [0.9, 0.999],
         "eps": 1e-8,
         "correct_bias": true
@@ -79,7 +79,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
     },
     "grad_norm": 1.0,
     "num_epochs": 5,
-    "patience" : 30,
+    "patience" : 3,
     "num_gradient_accumulation_steps": 8,
     "cuda_device": 0,
     "validation_metric": "+f1"
