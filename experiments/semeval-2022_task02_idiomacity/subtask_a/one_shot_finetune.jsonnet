@@ -63,7 +63,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
   "data_loader": {
     "batch_sampler": {
       "type": "bucket",
-      "batch_size": 100
+      "batch_size": 30
     }
   },
   "trainer": {
