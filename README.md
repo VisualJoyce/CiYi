@@ -44,6 +44,22 @@ data/annotations/semeval-2022_task02_idiomacity/subtask_a/ZeroShot/eval.jsonl \
 --include-package ciyi --cuda-device 0
 ```
 
+### Subtask B
+
+```shell
+python experiments/semeval-2022_task02_idiomacity/subtask_b/create_data.py \
+--output_location data/annotations/semeval-2022_task02_idiomacity/subtask_b \
+--sts_dataset_path stsbenchmark.tsv.gz
+```
+
+```shell
+TRANSFORMER_LAYER=12 ANNOTATION_DIR=data/annotations/semeval-2022_task02_idiomacity/subtask_b/pretrain \
+MODEL_NAME=bert-base-multilingual-cased LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/anaconda3/lib \
+allennlp train experiments/semeval-2022_task02_idiomacity/subtask_b/pretrain.jsonnet \
+-s data/output/semeval-2022_task02_idiomacity/SubTaskB/pretrain/bert-base-multilingual-cased \
+--include-package ciyi
+```
+
 ## Acknowledgement
 We recommend the following repos:
 * [lexcomp](https://github.com/vered1986/lexcomp)

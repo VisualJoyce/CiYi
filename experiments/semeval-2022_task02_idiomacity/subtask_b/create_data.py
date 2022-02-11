@@ -3,12 +3,12 @@ import csv
 import gzip
 import os
 from collections import defaultdict
-from itertools import chain
 from pathlib import Path
 
 import jsonlines
 import pandas as pda
 from datasets import load_dataset
+from tqdm.auto import tqdm
 
 
 def create_pretrain(sts_dataset_path, output_location, languages):
@@ -51,138 +51,47 @@ def create_pretrain(sts_dataset_path, output_location, languages):
             writer.write_all(samples[split])
 
 
-def _get_train_data(data_location, file_name, include_context, include_idiom):
-    file_name = os.path.join(data_location, file_name)
+def create_predict(input_location, output_location, setting='pretrain'):
 
-    df = pda.read_csv(file_name, sep=",")
-    if include_context:
-        df.Previous.fillna('', inplace=True)
-        df.Next.fillna('', inplace=True)
-        df['sentence'] = df.Previous + df.Target + df.Next
-    else:
-        df['sentence'] = df.Target
+    df_dev = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.csv'), sep=",", index_col='ID')
+    df_dev_gold = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.gold.csv'), sep=",")
+    df = df_dev.join(df_dev_gold, on='ID', rsuffix='_')
+    with jsonlines.open(os.path.join(output_location, 'predict', 'dev.jsonl'), "w") as writer:
+        for elem in tqdm(df.to_dict('records'), total=df.shape[0]):
+            elem['Setting'] = setting
+            writer.write(elem)
 
-    # ['DataID', 'Language', 'MWE', 'Setting', 'Previous', 'Target', 'Next', 'Label']
-    for elem in df.to_dict('records'):
-        elem['span'] = elem['MWE']
-        elem['label'] = elem['Label']
-        elem['lang'] = elem['Language']
-        elem['sentence'] = elem['sentence'].replace("\n", " ")
-        yield elem
+    df_eval = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'eval.csv'), sep=",", index_col='ID')
+    with jsonlines.open(os.path.join(output_location, 'predict', 'eval.jsonl'), "w") as writer:
+        for elem in tqdm(df_eval.to_dict('records'), total=df_eval.shape[0]):
+            elem['Setting'] = setting
+            writer.write(elem)
 
+    df_test = pda.read_csv(os.path.join(input_location, 'TestData', 'test.csv'), sep=",", index_col='ID')
+    with jsonlines.open(os.path.join(output_location, 'predict', 'test.jsonl'), "w") as writer:
+        for elem in tqdm(df_test.to_dict('records'), total=df_test.shape[0]):
+            elem['Setting'] = setting
+            writer.write(elem)
 
-def _get_dev_eval_data(data_location, input_file_name, gold_file_name, include_context, include_idiom):
-    # ['ID', 'Language', 'MWE', 'Previous', 'Target', 'Next']
-    # ['ID', 'DataID', 'Language', 'Label']
-    df = pda.read_csv(os.path.join(data_location, input_file_name),
-                      sep=',')
-    if not gold_file_name is None:
-        df_gold = pda.read_csv(os.path.join(data_location, gold_file_name), sep=",",
-                               index_col='ID')
-        assert df.shape[0] == df_gold.shape[0]
-        df = df.join(df_gold, on='ID', rsuffix='_gold')
-    else:
-        df['Label'] = 1
-
-    if include_context:
-        df.Previous.fillna('', inplace=True)
-        df.Next.fillna('', inplace=True)
-        df['sentence'] = df.Previous + df.Target + df.Next
-    else:
-        df['sentence'] = df.Target
-
-    # ['DataID', 'Language', 'MWE', 'Setting', 'Previous', 'Target', 'Next', 'Label']
-    for elem in df.to_dict('records'):
-        elem['span'] = elem['MWE']
-        elem['label'] = elem['Label']
-        elem['lang'] = elem['Language']
-        elem['sentence'] = elem['sentence'].replace("\n", " ")
-        yield elem
-
-
-def create_finetune(input_location, output_location):
-    ## Zero shot data
-    with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'train.jsonl'), "w") as writer:
-        for item in _get_train_data(
-                data_location=input_location,
-                file_name='train_zero_shot.csv',
-                include_context=True,
-                include_idiom=False
-        ):
-            item['Setting'] = "zero_shot"
-            writer.write(item)
-
-    with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'dev.jsonl'), "w") as writer:
-        for item in _get_dev_eval_data(
-                data_location=input_location,
-                input_file_name='dev.csv',
-                gold_file_name='dev_gold.csv',
-                include_context=True,
-                include_idiom=False
-        ):
-            item['Setting'] = "zero_shot"
-            writer.write(item)
-
-    with jsonlines.open(os.path.join(output_location, 'ZeroShot', 'eval.jsonl'), "w") as writer:
-        for item in _get_dev_eval_data(
-                data_location=input_location,
-                input_file_name='eval.csv',
-                gold_file_name=None,  ## Don't have gold evaluation file -- submit to CodaLab
-                include_context=True,
-                include_idiom=False
-        ):
-            item['Setting'] = "zero_shot"
-            writer.write(item)
-
-    ## OneShot Data (combine both for training)
-    with jsonlines.open(os.path.join(output_location, 'OneShot', 'train.jsonl'), 'w') as writer:
-        for item in chain(
-                _get_train_data(
-                    data_location=input_location,
-                    file_name='train_zero_shot.csv',
-                    include_context=False,
-                    include_idiom=True),
-                _get_train_data(
-                    data_location=input_location,
-                    file_name='train_one_shot.csv',
-                    include_context=False,
-                    include_idiom=True
-                )):
-            item['Setting'] = "one_shot"
-            writer.write(item)
-
-    with jsonlines.open(os.path.join(output_location, 'OneShot', 'dev.jsonl'), 'w') as writer:
-        for item in _get_dev_eval_data(
-                data_location=input_location,
-                input_file_name='dev.csv',
-                gold_file_name='dev_gold.csv',
-                include_context=False,
-                include_idiom=True
-        ):
-            item['Setting'] = "one_shot"
-            writer.write(item)
-
-    with jsonlines.open(os.path.join(output_location, 'OneShot', 'eval.jsonl'), 'w') as writer:
-        for item in _get_dev_eval_data(
-                data_location=input_location,
-                input_file_name='eval.csv',
-                gold_file_name=None,
-                include_context=False,
-                include_idiom=True
-        ):
-            item['Setting'] = "one_shot"
-            writer.write(item)
+    df_finetune = pda.read_csv(os.path.join(input_location, 'TrainData', 'train_data.csv'), sep=",")
+    with jsonlines.open(os.path.join(output_location, 'predict', 'finetune.jsonl'), "w") as writer:
+        for elem in tqdm(df_finetune.to_dict('records'), total=df_finetune.shape[0]):
+            elem['Setting'] = setting
+            writer.write(elem)
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--sts_dataset_path', help='JSON config files')
+    parser.add_argument('--input_location', help='JSON config files')
     # parser.add_argument('--finetune_location', help='JSON config files')
     parser.add_argument('--output_location', help='JSON config files')
     args = parser.parse_args()
 
     Path(os.path.join(args.output_location, 'pretrain')).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(args.output_location, 'predict')).mkdir(parents=True, exist_ok=True)
     # Path(os.path.join(args.output_location, 'finetune')).mkdir(parents=True, exist_ok=True)
 
     create_pretrain(args.sts_dataset_path, args.output_location, languages=['EN', "PT"])
+    create_predict(args.input_location, args.output_location, setting='pretrain')
     # create_finetune(args.input_location, args.output_location)

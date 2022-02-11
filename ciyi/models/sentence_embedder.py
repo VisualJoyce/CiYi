@@ -104,6 +104,7 @@ class SentenceEmbedder(Model):
             self._correlation(sim, label)
             loss = self._loss(sim, label)
             output_dict["loss"] = loss
+            output_dict["sim"] = sim
 
         return output_dict
 
