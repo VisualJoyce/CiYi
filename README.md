@@ -49,7 +49,7 @@ data/annotations/semeval-2022_task02_idiomacity/subtask_a/ZeroShot/eval.jsonl \
 ```shell
 python experiments/semeval-2022_task02_idiomacity/subtask_b/create_data.py \
 --output_location data/annotations/semeval-2022_task02_idiomacity/subtask_b \
---sts_dataset_path stsbenchmark.tsv.gz
+--sts_dataset_path stsbenchmark.tsv.gz  --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskB
 ```
 
 ```shell

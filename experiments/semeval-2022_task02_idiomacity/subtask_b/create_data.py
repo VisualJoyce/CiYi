@@ -59,24 +59,28 @@ def create_predict(input_location, output_location, setting='pretrain'):
     with jsonlines.open(os.path.join(output_location, 'predict', 'dev.jsonl'), "w") as writer:
         for elem in tqdm(df.to_dict('records'), total=df.shape[0]):
             elem['Setting'] = setting
+            elem['lang'] = elem['Language']
             writer.write(elem)
 
     df_eval = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'eval.csv'), sep=",", index_col='ID')
     with jsonlines.open(os.path.join(output_location, 'predict', 'eval.jsonl'), "w") as writer:
         for elem in tqdm(df_eval.to_dict('records'), total=df_eval.shape[0]):
             elem['Setting'] = setting
+            elem['lang'] = elem['Language']
             writer.write(elem)
 
     df_test = pda.read_csv(os.path.join(input_location, 'TestData', 'test.csv'), sep=",", index_col='ID')
     with jsonlines.open(os.path.join(output_location, 'predict', 'test.jsonl'), "w") as writer:
         for elem in tqdm(df_test.to_dict('records'), total=df_test.shape[0]):
             elem['Setting'] = setting
+            elem['lang'] = elem['Language']
             writer.write(elem)
 
     df_finetune = pda.read_csv(os.path.join(input_location, 'TrainData', 'train_data.csv'), sep=",")
     with jsonlines.open(os.path.join(output_location, 'predict', 'finetune.jsonl'), "w") as writer:
         for elem in tqdm(df_finetune.to_dict('records'), total=df_finetune.shape[0]):
             elem['Setting'] = setting
+            elem['lang'] = elem['Language']
             writer.write(elem)
 
 
