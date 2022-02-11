@@ -32,4 +32,4 @@ class SemEval2022Task2SubtaskBPredictor(SpanClassifierPredictor):
         If you don't want your outputs in JSON-lines format
         you can override this function to output them differently.
         """
-        return f"{outputs['metadata']['ID']},{outputs['metadata']['Language']},{outputs['metadata']['Setting']},{outputs['Sim']}\n"
+        return f"{outputs['metadata']['ID']},{outputs['metadata']['Language']},{outputs['metadata']['Setting']},{outputs['sim']}\n"
