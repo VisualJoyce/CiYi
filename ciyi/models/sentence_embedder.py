@@ -101,10 +101,11 @@ class SentenceEmbedder(Model):
         if sentence2 is not None:
             embedded_text2 = self.encode(sentence2)
             sim = torch.cosine_similarity(embedded_text, embedded_text2)
-            self._correlation(sim, label)
-            loss = self._loss(sim, label)
-            output_dict["loss"] = loss
             output_dict["sim"] = sim
+            if label is not None:
+                self._correlation(sim, label)
+                loss = self._loss(sim, label)
+                output_dict["loss"] = loss
 
         return output_dict
 
