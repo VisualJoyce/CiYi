@@ -95,6 +95,10 @@ class SentenceEmbedder(Model):
             label classes for each instance.
         loss : torch.FloatTensor, optional
             A scalar loss to be optimised.
+            :param label:
+            :param sentence1:
+            :param sentence2:
+            :param metadata:
         """
         embedded_text = self.encode(sentence1)
         output_dict = {'sentence_embedding': embedded_text, "metadata": metadata}
@@ -103,8 +107,8 @@ class SentenceEmbedder(Model):
             sim = torch.cosine_similarity(embedded_text, embedded_text2)
             output_dict["sim"] = sim
             if label is not None:
-                self._correlation(sim, label)
-                loss = self._loss(sim, label)
+                self._correlation(sim, label.reshape(-1))
+                loss = self._loss(sim, label.reshape(-1))
                 output_dict["loss"] = loss
 
         return output_dict
