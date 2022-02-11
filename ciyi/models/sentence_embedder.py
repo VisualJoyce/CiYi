@@ -113,22 +113,6 @@ class SentenceEmbedder(Model):
         """
         Converts indices to string labels, and adds a ``"label"`` key to the result.
         """
-        # output_dict = super(SentenceSpanClassificationModel, self).decode(output_dict)
-        label_probs = torch.nn.functional.softmax(output_dict['logits'], dim=-1)
-        output_dict['label_probs'] = label_probs
-        predictions = label_probs.cpu().data.numpy()
-        argmax_indices = np.argmax(predictions, axis=-1)
-
-        # Single instance
-        if np.isscalar(argmax_indices):
-            argmax_indices = [argmax_indices]
-
-        if not output_dict['metadata'][0]['skip_indexing']:
-            labels = [self.vocab.get_token_from_index(x, namespace="labels")
-                      for x in argmax_indices]
-        else:
-            labels = argmax_indices
-        output_dict['label'] = labels
         return output_dict
 
     @overrides
