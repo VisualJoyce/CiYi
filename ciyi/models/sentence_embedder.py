@@ -98,7 +98,7 @@ class SentenceEmbedder(Model):
         """
         embedded_text = self.encode(sentence1)
         output_dict = {'sentence_embedding': embedded_text, "metadata": metadata}
-        if sentence2 is not None and label is not None:
+        if sentence2 is not None:
             embedded_text2 = self.encode(sentence2)
             sim = torch.cosine_similarity(embedded_text, embedded_text2)
             self._correlation(sim, label)
