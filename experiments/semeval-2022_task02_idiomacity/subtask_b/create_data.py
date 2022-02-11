@@ -62,14 +62,14 @@ def create_predict(input_location, output_location, setting='pretrain'):
             elem['lang'] = elem['Language']
             writer.write(elem)
 
-    df_eval = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'eval.csv'), sep=",", index_col='ID')
+    df_eval = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'eval.csv'), sep=",")
     with jsonlines.open(os.path.join(output_location, 'predict', 'eval.jsonl'), "w") as writer:
         for elem in tqdm(df_eval.to_dict('records'), total=df_eval.shape[0]):
             elem['Setting'] = setting
             elem['lang'] = elem['Language']
             writer.write(elem)
 
-    df_test = pda.read_csv(os.path.join(input_location, 'TestData', 'test.csv'), sep=",", index_col='ID')
+    df_test = pda.read_csv(os.path.join(input_location, 'TestData', 'test.csv'), sep=",")
     with jsonlines.open(os.path.join(output_location, 'predict', 'test.jsonl'), "w") as writer:
         for elem in tqdm(df_test.to_dict('records'), total=df_test.shape[0]):
             elem['Setting'] = setting
