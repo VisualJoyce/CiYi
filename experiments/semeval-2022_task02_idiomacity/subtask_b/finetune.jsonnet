@@ -21,27 +21,8 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
   "train_data_path": ANNOTATION_DIR + "/train.jsonl",
   "validation_data_path": ANNOTATION_DIR + "/validation.jsonl",
   "model": {
-    "type": "sentence_embedder",
-    "text_field_embedder": {
-      "token_embedders": {
-        "bert": {
-          "type": "pretrained_transformer_layern_mismatched",
-          "model_name": MODEL_NAME,
-          "max_length": 512,
-          "last_layer_only": false,
-          "transformer_layer": TRANSFORMER_LAYER,
-          "train_parameters": true
-        }
-      }
-    },
-    "seq2seq_encoder": {
-      "type": "pass_through",
-      "input_dim": 768,
-    },
-    "seq2vec_encoder": {
-      "type": "boe",
-      "embedding_dim": 768
-    }
+    "type": "from_archive",
+    "archive_file": "data/output/semeval-2022_task02_idiomacity/SubTaskB/pretrain/" + MODEL_NAME + "/model.tar.gz"
   },
   "data_loader": {
     "batch_sampler": {

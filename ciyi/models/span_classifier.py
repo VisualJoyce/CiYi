@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
-from allennlp.modules import FeedForward, TextFieldEmbedder, Seq2SeqEncoder
+from allennlp.modules import FeedForward, TextFieldEmbedder, Seq2SeqEncoder, Seq2VecEncoder
 from allennlp.modules.span_extractors import SpanExtractor
 from allennlp.nn import InitializerApplicator
 from allennlp.nn import util
@@ -62,7 +62,7 @@ class SpanClassifier(Model):
         if feedforward is not None:
             self._classifier_input_dim = feedforward.get_output_dim()
         else:
-            self._classifier_input_dim = self._seq2vec_encoder.get_output_dim()
+            self._classifier_input_dim = self._span_extractor.get_output_dim()
 
         if dropout:
             self._dropout = torch.nn.Dropout(dropout)
@@ -114,12 +114,13 @@ class SpanClassifier(Model):
         # Encode the sequence
         if self._seq2seq_encoder:
             sentence_mask = util.get_text_field_mask(sentence)
-            embedded_text = self._seq2seq_encoder(embedded_text, sentence_mask).data
+            embedded_text = self._seq2seq_encoder(embedded_text, sentence_mask)
 
         # Extract the span: shape = (batch_size, num_spans, feed_forward.input_dim())
         embedded_text = self._span_extractor(embedded_text, span)
 
-        # embedded_text = self._seq2vec_encoder(embedded_text, mask=mask)
+        # span_mask = util.get_text_field_mask(span_text)
+        # embedded_text = self._seq2vec_encoder(embedded_text, mask=span_mask)
 
         if self._dropout:
             embedded_text = self._dropout(embedded_text)

@@ -51,8 +51,8 @@ def create_pretrain(sts_dataset_path, output_location, languages):
             writer.write_all(samples[split])
 
 
-def create_predict(input_location, output_location, setting='pretrain'):
-
+def create_predict(input_location, output_location):
+    setting = 'pre_train'
     df_dev = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.csv'), sep=",", index_col='ID')
     df_dev_gold = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.gold.csv'), sep=",")
     df = df_dev.join(df_dev_gold, on='ID', rsuffix='_')
@@ -84,6 +84,39 @@ def create_predict(input_location, output_location, setting='pretrain'):
             writer.write(elem)
 
 
+def create_finetune(input_location, output_location):
+    setting = 'fine_tune'
+    df_dev = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.csv'), sep=",", index_col='ID')
+    df_dev_gold = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.gold.csv'), sep=",")
+    df = df_dev.join(df_dev_gold, on='ID', rsuffix='_')
+    with jsonlines.open(os.path.join(output_location, 'finetune', 'validation.jsonl'), "w") as writer:
+        for elem in tqdm(df.to_dict('records'), total=df.shape[0]):
+            elem['Setting'] = setting
+            elem['lang'] = elem['Language']
+            writer.write(elem)
+
+    df_eval = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'eval.csv'), sep=",")
+    with jsonlines.open(os.path.join(output_location, 'finetune', 'eval.jsonl'), "w") as writer:
+        for elem in tqdm(df_eval.to_dict('records'), total=df_eval.shape[0]):
+            elem['Setting'] = setting
+            elem['lang'] = elem['Language']
+            writer.write(elem)
+
+    df_test = pda.read_csv(os.path.join(input_location, 'TestData', 'test.csv'), sep=",")
+    with jsonlines.open(os.path.join(output_location, 'finetune', 'test.jsonl'), "w") as writer:
+        for elem in tqdm(df_test.to_dict('records'), total=df_test.shape[0]):
+            elem['Setting'] = setting
+            elem['lang'] = elem['Language']
+            writer.write(elem)
+
+    df_finetune = pda.read_csv(os.path.join(input_location, 'TrainData', 'train_data.csv'), sep=",")
+    with jsonlines.open(os.path.join(output_location, 'finetune', 'train.jsonl'), "w") as writer:
+        for elem in tqdm(df_finetune.to_dict('records'), total=df_finetune.shape[0]):
+            elem['Setting'] = setting
+            elem['lang'] = elem['Language']
+            writer.write(elem)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--sts_dataset_path', help='JSON config files')
@@ -94,8 +127,8 @@ if __name__ == '__main__':
 
     Path(os.path.join(args.output_location, 'pretrain')).mkdir(parents=True, exist_ok=True)
     Path(os.path.join(args.output_location, 'predict')).mkdir(parents=True, exist_ok=True)
-    # Path(os.path.join(args.output_location, 'finetune')).mkdir(parents=True, exist_ok=True)
+    Path(os.path.join(args.output_location, 'finetune')).mkdir(parents=True, exist_ok=True)
 
     create_pretrain(args.sts_dataset_path, args.output_location, languages=['EN', "PT"])
-    create_predict(args.input_location, args.output_location, setting='pretrain')
-    # create_finetune(args.input_location, args.output_location)
+    create_predict(args.input_location, args.output_location)
+    create_finetune(args.input_location, args.output_location)

@@ -1,6 +1,5 @@
 from typing import Dict
 
-import numpy as np
 import torch
 import torch.nn as nn
 from allennlp.data import Vocabulary

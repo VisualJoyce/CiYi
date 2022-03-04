@@ -34,36 +34,16 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
         }
       }
     },
-    "feedforward": {
-      "input_dim": 3072,
-      "num_layers": 1,
-      "hidden_dims": [
-        300
-      ],
-      "activations": [
-        "relu"
-      ],
-      "dropout": [
-        0.2
-      ]
-    },
     "num_labels" : 2,
-    "seq2seq_encoder": {
-      "type": "lstm",
-      "bidirectional": true,
-      "input_size": 768,
-      "hidden_size": 768,
-      "num_layers": 1
-    },
     "span_extractor": {
       "type": "endpoint",
-      "input_dim": 1536
+      "input_dim": 768
     }
   },
   "data_loader": {
     "batch_sampler": {
-      "type": "bucket",
-      "batch_size": 10
+      "type": "max_tokens_sampler",
+      "max_tokens": 800
     }
   },
   "trainer": {
@@ -78,7 +58,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
         "type": "polynomial_decay",
     },
     "grad_norm": 1.0,
-    "num_epochs": 5,
+    "num_epochs": 10,
     "patience" : 3,
     "num_gradient_accumulation_steps": 8,
     "cuda_device": 0,
