@@ -117,7 +117,7 @@ class SpanClassifier(Model):
             embedded_text = self._seq2seq_encoder(embedded_text, sentence_mask)
 
         # Extract the span: shape = (batch_size, num_spans, feed_forward.input_dim())
-        embedded_text = self._span_extractor(embedded_text, span)
+        embedded_text = self._span_extractor(embedded_text, span).squeeze(0)
 
         # span_mask = util.get_text_field_mask(span_text)
         # embedded_text = self._seq2vec_encoder(embedded_text, mask=span_mask)

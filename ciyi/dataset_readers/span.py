@@ -81,7 +81,7 @@ class SpanDatasetReader(DatasetReader):
     def _read(self, file_path):
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
-            for line in data_file:
+            for i, line in enumerate(data_file):
                 line = line.strip("\n")
                 if not line:
                     continue
@@ -92,6 +92,8 @@ class SpanDatasetReader(DatasetReader):
                     logger.warning(f"Parsing failed: {line}")
                 except TypeError:
                     logger.warning(f"Parsing failed: {line}")
+                # if i > 50:
+                #     break
 
     @overrides
     def text_to_instance(self, example: dict) -> Instance:

@@ -61,7 +61,7 @@ local NUM_GRADIENT_ACCUMULATION_STEPS = if MODEL_NAME == 'xlm-roberta-base' then
         "type": "polynomial_decay",
     },
     "grad_norm": 1.0,
-    "num_epochs": 5,
+    "num_epochs": 10,
     "patience" : 3,
     "num_gradient_accumulation_steps": NUM_GRADIENT_ACCUMULATION_STEPS,
     "cuda_device": 0,
