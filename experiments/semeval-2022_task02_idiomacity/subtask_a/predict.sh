@@ -5,6 +5,7 @@
 #ANNOTATION_DIR=$PWD/data/annotations/Math23K/
 MODEL_NAME=$1
 PHASE_NAME=$2
+SPAN_EXTRACTOR_TYPE=$3
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/anaconda3/lib
 
 declare -a datasets=(ZeroShot OneShot)
@@ -15,16 +16,16 @@ for d in "${datasets[@]}"; do
   for s in "${splits[@]}"; do
     TRANSFORMER_LAYER=12 ANNOTATION_DIR=data/annotations/semeval-2022_task02_idiomacity/subtask_a/"$PHASE_NAME"/"$d" \
       allennlp predict \
-      data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$d"/finetune/"$MODEL_NAME"/model.tar.gz \
+      data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$d"/finetune/"$MODEL_NAME"/"$SPAN_EXTRACTOR_TYPE"/model.tar.gz \
       data/annotations/semeval-2022_task02_idiomacity/subtask_a/"$PHASE_NAME"/"$d"/"$s".jsonl \
       --predictor semeval-2022_task02_idiomacity_subtask_a \
-      --output-file data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$d"/finetune/"$MODEL_NAME"/"$s"_predict.csv \
+      --output-file data/output/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$d"/finetune/"$MODEL_NAME"/"$SPAN_EXTRACTOR_TYPE"/"$s"_predict.csv \
       --include-package ciyi --cuda-device 0
   done
 done
 
 if [[ $PHASE_NAME == "evaluation" ]]; then
   echo "ID,Language,Setting,Label" >task2_subtaska.csv
-  cat data/output/semeval-2022_task02_idiomacity/SubTaskA/evaluation/ZeroShot/finetune/"$MODEL_NAME"/test_predict.csv >>task2_subtaska.csv
-  cat data/output/semeval-2022_task02_idiomacity/SubTaskA/evaluation/OneShot/finetune/"$MODEL_NAME"/test_predict.csv >>task2_subtaska.csv
+  cat data/output/semeval-2022_task02_idiomacity/SubTaskA/evaluation/ZeroShot/finetune/"$MODEL_NAME"/"$SPAN_EXTRACTOR_TYPE"/test_predict.csv >>task2_subtaska.csv
+  cat data/output/semeval-2022_task02_idiomacity/SubTaskA/evaluation/OneShot/finetune/"$MODEL_NAME"/"$SPAN_EXTRACTOR_TYPE"/test_predict.csv >>task2_subtaska.csv
 fi
