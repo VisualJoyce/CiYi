@@ -37,6 +37,7 @@ local NUM_GRADIENT_ACCUMULATION_STEPS = if MODEL_NAME == 'xlm-roberta-base' then
         }
       }
     },
+    "dropout": 0.5,
     "num_labels" : 2,
     "span_extractor": {
       "type": "endpoint",
