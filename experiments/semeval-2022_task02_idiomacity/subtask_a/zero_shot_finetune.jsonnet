@@ -2,6 +2,7 @@ local TRANSFORMER_LAYER = std.extVar("TRANSFORMER_LAYER");
 local MODEL_NAME = std.extVar("MODEL_NAME");
 local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
 local SPAN_EXTRACTOR_TYPE = std.strReplace(std.extVar("SPAN_EXTRACTOR_TYPE"), "xy", "x*y");
+local HIDDEN_DIM = if MODEL_NAME == 'xlm-roberta-large' then 1024 else 768;
 local MAX_TOKENS = if MODEL_NAME == 'xlm-roberta-base' then 800 else 800;
 local NUM_GRADIENT_ACCUMULATION_STEPS = if MODEL_NAME == 'xlm-roberta-base' then 8 else 8;
 
@@ -42,7 +43,7 @@ local NUM_GRADIENT_ACCUMULATION_STEPS = if MODEL_NAME == 'xlm-roberta-base' then
     "span_extractor": {
       "type": "endpoint",
       "combination": SPAN_EXTRACTOR_TYPE,
-      "input_dim": 768
+      "input_dim": HIDDEN_DIM
     }
   },
   "data_loader": {
