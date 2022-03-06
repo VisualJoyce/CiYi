@@ -3,7 +3,7 @@ local MODEL_NAME = std.extVar("MODEL_NAME");
 local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
 local SPAN_EXTRACTOR_TYPE = std.strReplace(std.extVar("SPAN_EXTRACTOR_TYPE"), "xy", "x*y");
 local HIDDEN_DIM = if MODEL_NAME == 'xlm-roberta-large' then 1024 else 768;
-local MAX_TOKENS = if MODEL_NAME == 'xlm-roberta-base' then 800 else 800;
+local MAX_TOKENS = if MODEL_NAME == 'xlm-roberta-large' then 500 else 800;
 local NUM_GRADIENT_ACCUMULATION_STEPS = if MODEL_NAME == 'xlm-roberta-base' then 8 else 8;
 
 {
