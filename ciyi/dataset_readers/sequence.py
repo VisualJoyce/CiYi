@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, List
+from typing import Dict, List, Iterable
 
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
@@ -42,8 +42,7 @@ class SequenceReader(DatasetReader):
         super().__init__()
         self._token_indexers = token_indexers or {"tokens": SingleIdTokenIndexer()}
 
-    @overrides
-    def _read(self, file_path: str):
+    def _read(self, file_path: str) -> Iterable[Instance]:
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
             for line in data_file:

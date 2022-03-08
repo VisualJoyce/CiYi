@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict
+from typing import Dict, Iterable
 
 import spacy
 import torch
@@ -49,8 +49,7 @@ class SentencePairDatasetReader(DatasetReader):
         words = [token.text for token in doc if not token.is_space]
         return ' '.join(words)
 
-    @overrides
-    def _read(self, file_path):
+    def _read(self, file_path) -> Iterable[Instance]:
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
             for line in data_file:

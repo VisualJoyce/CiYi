@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict
+from typing import Dict, Iterable
 
 import numpy as np
 import spacy
@@ -77,8 +77,7 @@ class SpanDatasetReader(DatasetReader):
             "end": end_token.i,
         }
 
-    @overrides
-    def _read(self, file_path):
+    def _read(self, file_path) -> Iterable[Instance]:
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
             for i, line in enumerate(data_file):
@@ -92,8 +91,6 @@ class SpanDatasetReader(DatasetReader):
                     logger.warning(f"Parsing failed: {line}")
                 except TypeError:
                     logger.warning(f"Parsing failed: {line}")
-                # if i > 50:
-                #     break
 
     @overrides
     def text_to_instance(self, example: dict) -> Instance:
