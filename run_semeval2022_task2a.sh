@@ -1,6 +1,8 @@
 #!/bin/bash
 WORK_DIR=$(dirname $(readlink -f $0))
 DATA_DIR=$1
+PRETRAINED_MODEL_PATH=$2
+
 OUTPUT_DIR=$DATA_DIR/output
 SUBMISSION_DIR=$DATA_DIR/submissions
 ANNOTATION_DIR=$DATA_DIR/annotations/semeval-2022_task02_idiomacity/subtask_a
@@ -27,15 +29,21 @@ for m in "${models[@]}"; do
       setting="${SUBMISSION_DIR}/$m-$l-$c"
       echo "$setting"
 
+      if [ -z "$PRETRAINED_MODEL_PATH" ]; then
+        mp=$m
+      else
+        mp=$PRETRAINED_MODEL_PATH/$m
+      fi
+
       # bash train.sh "$m" evaluation "$c" "$l" "$ANNOTATION_DIR" "$OUTPUT_DIR"
       TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/ZeroShot \
-        MODEL_NAME=$m SPAN_EXTRACTOR_TYPE=$c \
+        MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=$c \
         allennlp train ${CONFIGURATION_DIR}/zero_shot_finetune.jsonnet \
         -s "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/ZeroShot/finetune/"$m"/"$c"/"$l" \
         --include-package ciyi
 
       TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/OneShot \
-        MODEL_NAME=$m SPAN_EXTRACTOR_TYPE=$c \
+        MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=$c \
         allennlp train ${CONFIGURATION_DIR}/one_shot_finetune.jsonnet \
         -s "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/OneShot/finetune/"$m"/"$c"/"$l" \
         --include-package ciyi

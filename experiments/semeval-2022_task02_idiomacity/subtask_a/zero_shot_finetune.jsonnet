@@ -4,7 +4,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
 local SPAN_EXTRACTOR_TYPE = std.strReplace(std.extVar("SPAN_EXTRACTOR_TYPE"), "xy", "x*y");
 local HIDDEN_DIM = if std.member(MODEL_NAME, 'xlm-roberta-large') then 1024 else 768;
 local MAX_TOKENS = if std.member(MODEL_NAME, 'xlm-roberta-large') then 800 else 800;
-local NUM_GRADIENT_ACCUMULATION_STEPS = if MODEL_NAME == 'xlm-roberta-large' then 8 else 8;
+local NUM_GRADIENT_ACCUMULATION_STEPS = if std.member(MODEL_NAME, 'xlm-roberta-large') then 8 else 8;
 
 {
   "dataset_reader": {
