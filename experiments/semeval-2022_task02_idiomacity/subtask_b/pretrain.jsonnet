@@ -1,6 +1,7 @@
 local TRANSFORMER_LAYER = std.extVar("TRANSFORMER_LAYER");
 local MODEL_NAME = std.extVar("MODEL_NAME");
 local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
+local SEQ2VEC_ENCODER_TYPE = std.extVar("SEQ2VEC_ENCODER_TYPE");
 
 {
   "dataset_reader": {
@@ -39,20 +40,20 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
       "input_dim": 768,
     },
     "seq2vec_encoder": {
-      "type": "boe",
+      "type": SEQ2VEC_ENCODER_TYPE,
       "embedding_dim": 768
     }
   },
   "data_loader": {
     "batch_sampler": {
       "type": "bucket",
-      "batch_size": 20
+      "batch_size": 64
     }
   },
   "trainer": {
     "optimizer": {
         "type": "huggingface_adamw",
-        "lr": 3e-5,
+        "lr": 1e-5,
         "betas": [0.9, 0.999],
         "eps": 1e-8,
         "correct_bias": true
@@ -60,7 +61,7 @@ local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
     "learning_rate_scheduler": {
         "type": "polynomial_decay",
     },
-    "grad_norm": 1.0,
+    "grad_norm": 5.0,
     "num_epochs": 10,
     "patience" : 3,
     "num_gradient_accumulation_steps": 8,
