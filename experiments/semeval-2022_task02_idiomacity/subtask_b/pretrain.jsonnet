@@ -62,8 +62,8 @@ local SEQ2VEC_ENCODER_TYPE = std.extVar("SEQ2VEC_ENCODER_TYPE");
         "type": "polynomial_decay",
     },
     "grad_norm": 5.0,
-    "num_epochs": 10,
-    "patience" : 3,
+    "num_epochs": 50,
+    "patience" : 10,
     "num_gradient_accumulation_steps": 8,
     "cuda_device": 0,
     "validation_metric": "+spearman_correlation"
