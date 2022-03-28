@@ -8,8 +8,9 @@ SUBMISSION_DIR=$DATA_DIR/submissions
 ANNOTATION_DIR=$DATA_DIR/annotations/semeval-2022_task02_idiomacity/subtask_b
 CONFIGURATION_DIR=experiments/semeval-2022_task02_idiomacity/subtask_b
 
-#declare -a models=(bert-base-multilingual-cased xlm-roberta-base xlm-roberta-large)
-declare -a models=(xlm-roberta-large)
+declare -a models=(bert-base-multilingual-cased xlm-roberta-base xlm-roberta-large)
+#declare -a models=(bert-base-multilingual-cased)
+#declare -a models=(xlm-roberta-base xlm-roberta-large)
 declare -a seq2vec_encoder_types=("boe" "cls_pooler")
 declare -a splits=(finetune_train finetune_validation test)
 

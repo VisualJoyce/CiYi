@@ -68,6 +68,14 @@ def create_predict(input_location, output_location):
             elem['Setting'] = setting
             elem['lang'] = elem['Language']
             writer.write(ensure_item(elem))
+    with jsonlines.open(os.path.join(output_location, 'predict', 'finetune_validation.jsonl'), "w") as writer:
+        for elem in tqdm(df.to_dict('records'), total=df.shape[0]):
+            elem['Setting'] = setting
+            elem['lang'] = elem['Language']
+            if elem['sim'] == 'None':
+                elem['sentence1'] = elem['alternative_1']
+                elem['sentence2'] = elem['alternative_2']
+            writer.write(ensure_item(elem))
 
     df_eval = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'eval.csv'), sep=",")
     with jsonlines.open(os.path.join(output_location, 'predict', 'eval.jsonl'), "w") as writer:
@@ -93,22 +101,13 @@ def create_predict(input_location, output_location):
                 elem['sentence2'] = elem['alternative_2']
             writer.write(ensure_item(elem))
 
-    with jsonlines.open(os.path.join(output_location, 'predict', 'finetune_validation.jsonl'), "w") as writer:
-        for elem in tqdm(df.to_dict('records'), total=df.shape[0]):
-            elem['Setting'] = setting
-            elem['lang'] = elem['Language']
-            if elem['sim'] == 'None':
-                elem['sentence1'] = elem['alternative_1']
-                elem['sentence2'] = elem['alternative_2']
-            writer.write(ensure_item(elem))
-
 
 def create_finetune(input_location, output_location):
     setting = 'fine_tune'
     df_dev = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.csv'), sep=",")
     df_dev_gold = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.gold.csv'), sep=",", index_col='ID')
     df = df_dev.join(df_dev_gold, on='ID', rsuffix='_')
-    with jsonlines.open(os.path.join(output_location, 'finetune', 'validation.jsonl'), "w") as writer:
+    with jsonlines.open(os.path.join(output_location, 'finetune', 'validation_original.jsonl'), "w") as writer:
         for elem in tqdm(df.to_dict('records'), total=df.shape[0]):
             elem['Setting'] = setting
             elem['lang'] = elem['Language']
@@ -129,7 +128,7 @@ def create_finetune(input_location, output_location):
             writer.write(ensure_item(elem))
 
     df_finetune = pda.read_csv(os.path.join(input_location, 'TrainData', 'train_data.csv'), sep=",")
-    with jsonlines.open(os.path.join(output_location, 'finetune', 'train.jsonl'), "w") as writer:
+    with jsonlines.open(os.path.join(output_location, 'finetune', 'train_original.jsonl'), "w") as writer:
         for elem in tqdm(df_finetune.to_dict('records'), total=df_finetune.shape[0]):
             elem['Setting'] = setting
             elem['lang'] = elem['Language']
