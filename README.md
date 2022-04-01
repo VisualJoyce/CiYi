@@ -1,4 +1,5 @@
-![CiYi](cy_logo.png)
+![image](https://user-images.githubusercontent.com/2136700/161353640-5bb7009d-5d50-4413-a752-f81fdad6a6d0.png)
+
 # CiYi (词义)
 A repo for lexical semantics
 
@@ -21,8 +22,6 @@ A repo for lexical semantics
     abstract = "Understanding idioms is important in NLP. In this paper, we study to what extent pre-trained BERT model can encode the meaning of a potentially idiomatic expression (PIE) in a certain context. We make use of a few existing datasets and perform two probing tasks: PIE usage classification and idiom paraphrase identification. Our experiment results suggest that BERT indeed can separate the literal and idiomatic usages of a PIE with high accuracy. It is also able to encode the idiomatic meaning of a PIE to some extent.",
 }
 ```
-
-## PIE Classification
 
 ## SemEval 2022 Task 2
 Multilingual Idiomaticity Detection and Sentence Embedding
@@ -63,3 +62,4 @@ allennlp train experiments/semeval-2022_task02_idiomacity/subtask_b/pretrain.jso
 ## Acknowledgement
 We recommend the following repos:
 * [lexcomp](https://github.com/vered1986/lexcomp)
+* [allennlp-models](https://github.com/allenai/allennlp-models)
