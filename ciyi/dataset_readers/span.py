@@ -7,7 +7,7 @@ import spacy
 from Levenshtein import distance
 from allennlp.common.file_utils import cached_path
 from allennlp.data.dataset_readers.dataset_reader import DatasetReader
-from allennlp.data.fields import LabelField, TextField, SpanField, MetadataField
+from allennlp.data.fields import LabelField, TextField, SpanField, MetadataField, ListField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer
 from allennlp.data.tokenizers import WhitespaceTokenizer
@@ -40,7 +40,7 @@ class SpanDatasetReader(DatasetReader):
                  token_indexers: Dict[str, TokenIndexer],
                  spacy_languages: Dict[str, str],
                  skip_label_indexing=False) -> None:
-        super().__init__()
+        super().__init__(manual_distributed_sharding=True, manual_multiprocess_sharding=True)
         self._token_indexers = token_indexers
         self._tokenizer = WhitespaceTokenizer()
         self.nlp_dict = {k: spacy.load(v) for k, v in spacy_languages.items()}
@@ -80,17 +80,17 @@ class SpanDatasetReader(DatasetReader):
     def _read(self, file_path) -> Iterable[Instance]:
         with open(cached_path(file_path), "r") as data_file:
             logger.info("Reading instances from lines in file at: %s", file_path)
-            for i, line in enumerate(data_file):
-                line = line.strip("\n")
-                if not line:
-                    continue
-                curr_example_json = json.loads(line)
+            example_iter = (json.loads(line) for line in data_file if line)
+            filtered_example_iter = (
+                example for example in example_iter if example.get("gold_label") != "-"
+            )
+            for example in self.shard_iterable(filtered_example_iter):
                 try:
-                    yield self.text_to_instance(curr_example_json)
+                    yield self.text_to_instance(example)
                 except IndexError:
-                    logger.warning(f"Parsing failed: {line}")
+                    logger.warning(f"Parsing failed: {example}")
                 except TypeError:
-                    logger.warning(f"Parsing failed: {line}")
+                    logger.warning(f"Parsing failed: {example}")
 
     @overrides
     def text_to_instance(self, example: dict) -> Instance:
@@ -104,12 +104,14 @@ class SpanDatasetReader(DatasetReader):
         end = example['end']
 
         tokenized_sentence = self._tokenizer.tokenize(sentence)
-        sentence_field = TextField(tokenized_sentence, self._token_indexers)
-        span_field = SpanField(start, min(end, sentence_field.sequence_length() - 1), sentence_field)
+        sentence_field = TextField(tokenized_sentence)
+        span_field = ListField([SpanField(start,
+                                          min(end, sentence_field.sequence_length() - 1),
+                                          sentence_field)])
 
         span_text = ' '.join(sentence.split()[start:end + 1])
         tokenized_span = self._tokenizer.tokenize(span_text)
-        span_text_field = TextField(tokenized_span, self._token_indexers)
+        span_text_field = TextField(tokenized_span)
 
         fields = {
             'sentence': sentence_field,
@@ -124,3 +126,7 @@ class SpanDatasetReader(DatasetReader):
         example['skip_indexing'] = self.skip_label_indexing
         fields['metadata'] = MetadataField(example)
         return Instance(fields)
+
+    def apply_token_indexers(self, instance: Instance) -> None:
+        instance.fields["sentence"]._token_indexers = self._token_indexers
+        instance.fields["span_text"]._token_indexers = self._token_indexers
