@@ -82,7 +82,7 @@ class SpanDatasetReader(DatasetReader):
             logger.info("Reading instances from lines in file at: %s", file_path)
             example_iter = (json.loads(line) for line in data_file if line)
             filtered_example_iter = (
-                example for example in example_iter if example.get("gold_label") != "-"
+                example for example in example_iter
             )
             for example in self.shard_iterable(filtered_example_iter):
                 try:

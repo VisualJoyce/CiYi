@@ -22,7 +22,7 @@ local SPAN_EXTRACTOR = if SPAN_EXTRACTOR_TYPE == "endpoint" then {
     "token_indexers": {
       "bert": {
         "type": "pretrained_transformer_mismatched",
-        "max_length": 512,
+        "max_length": std.min(512, MAX_TOKENS),
         "model_name": MODEL_NAME
       }
     },
@@ -41,7 +41,7 @@ local SPAN_EXTRACTOR = if SPAN_EXTRACTOR_TYPE == "endpoint" then {
         "bert": {
           "type": "pretrained_transformer_layern_mismatched",
           "model_name": MODEL_NAME,
-          "max_length": 512,
+          "max_length": std.min(512, MAX_TOKENS),
           "last_layer_only": false,
           "transformer_layer": TRANSFORMER_LAYER,
           "train_parameters": true

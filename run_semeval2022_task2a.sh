@@ -9,14 +9,14 @@ ANNOTATION_DIR=$DATA_DIR/annotations/semeval-2022_task02_idiomacity/subtask_a
 CONFIGURATION_DIR=experiments/semeval-2022_task02_idiomacity/subtask_a
 
 #declare -a models=(bert-base-multilingual-cased xlm-roberta-base xlm-roberta-large)
-#declare -a models=(bert-base-multilingual-cased)
-declare -a models=(xlm-roberta-base)
-#declare -a layers=(24 12 8 4)
-declare -a layers=(12)
+declare -a models=(bert-base-multilingual-cased xlm-roberta-base)
+#declare -a models=(xlm-roberta-base)
+declare -a layers=(24 12 8 4)
+#declare -a layers=(12)
 declare -a span_extractor_types=("endpoint" "self_attentive" "max_pooling")
 #declare -a span_extractor_types=("max_pooling")
-#declare -a combinations=("x,y" "x,y,xy" "x,y,x-y" "x,y,xy,x-y")
-declare -a combinations=("x,y")
+declare -a combinations=("x,y" "x,y,xy" "x,y,x-y" "x,y,xy,x-y")
+#declare -a combinations=("x,y")
 declare -a datasets=(ZeroShot OneShot)
 declare -a splits=(eval test)
 
@@ -61,18 +61,26 @@ function train_endpoint() {
       mp=$PRETRAINED_MODEL_PATH/$m
     fi
 
-    # bash train.sh "$m" evaluation "$c" "$l" "$ANNOTATION_DIR" "$OUTPUT_DIR"
-    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/ZeroShot \
-      MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=endpoint ENDPOINT_SPAN_EXTRACTOR_COMBINATION=$c \
-      allennlp train ${CONFIGURATION_DIR}/zero_shot_finetune.jsonnet \
-      -s "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/ZeroShot/finetune/"$setting" \
-      --include-package ciyi
+    ZERO_SHOT_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/ZeroShot/finetune/"$setting"
+    if [ ! -f "$ZERO_SHOT_MODEL_PATH"/model.tar.gz ]; then
+      rm -r "$ZERO_SHOT_MODEL_PATH"
+      # bash train.sh "$m" evaluation "$c" "$l" "$ANNOTATION_DIR" "$OUTPUT_DIR"
+      TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/ZeroShot \
+        MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=endpoint ENDPOINT_SPAN_EXTRACTOR_COMBINATION=$c \
+        allennlp train ${CONFIGURATION_DIR}/zero_shot_finetune.jsonnet \
+        -s "${ZERO_SHOT_MODEL_PATH}" \
+        --include-package ciyi
+    fi
 
-    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/OneShot \
-      MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=endpoint ENDPOINT_SPAN_EXTRACTOR_COMBINATION=$c \
-      allennlp train ${CONFIGURATION_DIR}/one_shot_finetune.jsonnet \
-      -s "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/OneShot/finetune/"$setting" \
-      --include-package ciyi
+    ONE_SHOT_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/OneShot/finetune/"$setting"
+    if [ ! -f "$ONE_SHOT_MODEL_PATH"/model.tar.gz ]; then
+      rm -r "$ONE_SHOT_MODEL_PATH"
+      TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/OneShot \
+        MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=endpoint ENDPOINT_SPAN_EXTRACTOR_COMBINATION=$c \
+        allennlp train ${CONFIGURATION_DIR}/one_shot_finetune.jsonnet \
+        -s "${ONE_SHOT_MODEL_PATH}" \
+        --include-package ciyi
+    fi
 
     inference "$setting"
     submission "$setting"
@@ -90,17 +98,25 @@ function train_others() {
   fi
 
   # bash train.sh "$m" evaluation "$c" "$l" "$ANNOTATION_DIR" "$OUTPUT_DIR"
-  TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/ZeroShot \
-    MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=$s \
-    allennlp train ${CONFIGURATION_DIR}/zero_shot_finetune.jsonnet \
-    -s "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/ZeroShot/finetune/"$setting" \
-    --include-package ciyi
+  ZERO_SHOT_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/ZeroShot/finetune/"$setting"
+  if [ ! -f "$ZERO_SHOT_MODEL_PATH"/model.tar.gz ]; then
+    rm -r "$ZERO_SHOT_MODEL_PATH"
+    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/ZeroShot \
+      MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=$s \
+      allennlp train ${CONFIGURATION_DIR}/zero_shot_finetune.jsonnet \
+      -s "${ZERO_SHOT_MODEL_PATH}" \
+      --include-package ciyi
+  fi
 
-  TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/OneShot \
-    MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=$s \
-    allennlp train ${CONFIGURATION_DIR}/one_shot_finetune.jsonnet \
-    -s "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/OneShot/finetune/"$setting" \
-    --include-package ciyi
+  ONE_SHOT_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/OneShot/finetune/"$setting"
+  if [ ! -f "$ONE_SHOT_MODEL_PATH"/model.tar.gz ]; then
+    rm -r "$ONE_SHOT_MODEL_PATH"
+    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/$PHASE_NAME/OneShot \
+      MODEL_NAME=$mp SPAN_EXTRACTOR_TYPE=$s \
+      allennlp train ${CONFIGURATION_DIR}/one_shot_finetune.jsonnet \
+      -s "${ONE_SHOT_MODEL_PATH}" \
+      --include-package ciyi
+  fi
 
   inference "$setting"
   submission "$setting"
@@ -109,6 +125,9 @@ function train_others() {
 
 for m in "${models[@]}"; do
   for l in "${layers[@]}"; do
+    if [[ "$m" != 'xlm-roberta-large' && "$l" -gt 12 ]]; then
+      continue
+    fi
     for s in "${span_extractor_types[@]}"; do
       if [ "$s" == "endpoint" ]; then
         train_endpoint
