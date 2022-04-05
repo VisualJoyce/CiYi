@@ -34,7 +34,7 @@ _Data Preprocess_
 
 ```shell
 python experiments/semeval-2022_task02_idiomacity/subtask_a/create_data.py \
-  --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskA/Data \
+  --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskA \
   --output_location data/annotations/semeval-2022_task02_idiomacity/subtask_a \
   --phase evaluation
 ```

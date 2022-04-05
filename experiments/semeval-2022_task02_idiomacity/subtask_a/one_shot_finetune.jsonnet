@@ -5,6 +5,7 @@ local SPAN_EXTRACTOR_TYPE = std.extVar("SPAN_EXTRACTOR_TYPE");
 local HIDDEN_DIM = if std.member(MODEL_NAME, 'xlm-roberta-large') then 1024 else 768;
 local MAX_TOKENS = if std.member(MODEL_NAME, 'xlm-roberta-large') then 800 else 800;
 local NUM_GRADIENT_ACCUMULATION_STEPS = if std.member(MODEL_NAME, 'xlm-roberta-large') then 8 else 8;
+local GRAD_NORM = if std.member(MODEL_NAME, 'xlm-roberta-large') then 5 else 1;
 
 
 local SPAN_EXTRACTOR = if SPAN_EXTRACTOR_TYPE == "endpoint" then {
@@ -71,7 +72,7 @@ local SPAN_EXTRACTOR = if SPAN_EXTRACTOR_TYPE == "endpoint" then {
     "learning_rate_scheduler": {
         "type": "polynomial_decay",
     },
-    "grad_norm": 1.0,
+    "grad_norm": GRAD_NORM,
     "num_epochs": 10,
     "patience" : 10,
     "num_gradient_accumulation_steps": NUM_GRADIENT_ACCUMULATION_STEPS,
