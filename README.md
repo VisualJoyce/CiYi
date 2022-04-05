@@ -1,6 +1,7 @@
 ![image](https://user-images.githubusercontent.com/2136700/161353640-5bb7009d-5d50-4413-a752-f81fdad6a6d0.png)
 
 # CiYi (词义)
+
 A repo for lexical semantics
 
 ## MWE Type
@@ -24,42 +25,46 @@ A repo for lexical semantics
 ```
 
 ## SemEval 2022 Task 2
-Multilingual Idiomaticity Detection and Sentence Embedding
 
-### Data Preprocess
-```shell
-python experiments/semeval-2022_task02_idiomacity/create_data.py --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskA/Data --output_location data/annotations/semeval-2022_task02_idiomacity/subtask_a
-```
+Multilingual Idiomaticity Detection and Sentence Embedding
 
 ### Subtask A
 
+_Data Preprocess_
+
 ```shell
-TRANSFORMER_LAYER=12 ANNOTATION_DIR=data/annotations/semeval-2022_task02_idiomacity/subtask_a/ZeroShot \
-MODEL_NAME=bert-base-multilingual-cased LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/anaconda3/lib \
-allennlp predict data/output/semeval-2022_task02_idiomacity/SubTaskA/zero_shot/finetune/model.tar.gz \
-data/annotations/semeval-2022_task02_idiomacity/subtask_a/ZeroShot/eval.jsonl \
---predictor semeval-2022_task02_idiomacity_subtask_a \
---output-file data/output/semeval-2022_task02_idiomacity/SubTaskA/zero_shot/finetune/eval_predict.csv \
---include-package ciyi --cuda-device 0
+python experiments/semeval-2022_task02_idiomacity/subtask_a/create_data.py \
+  --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskA/Data \
+  --output_location data/annotations/semeval-2022_task02_idiomacity/subtask_a \
+  --phase evaluation
+```
+
+_Train_
+
+```shell
+bash run_semeval2022_task2a.sh data
 ```
 
 ### Subtask B
 
-```shell
-python experiments/semeval-2022_task02_idiomacity/subtask_b/create_data.py \
---output_location data/annotations/semeval-2022_task02_idiomacity/subtask_b \
---sts_dataset_path stsbenchmark.tsv.gz  --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskB
-```
+_Data Preprocess_
 
 ```shell
-TRANSFORMER_LAYER=12 ANNOTATION_DIR=data/annotations/semeval-2022_task02_idiomacity/subtask_b/pretrain \
-MODEL_NAME=bert-base-multilingual-cased LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/root/anaconda3/lib \
-allennlp train experiments/semeval-2022_task02_idiomacity/subtask_b/pretrain.jsonnet \
--s data/output/semeval-2022_task02_idiomacity/SubTaskB/pretrain/bert-base-multilingual-cased \
---include-package ciyi
+python experiments/semeval-2022_task02_idiomacity/subtask_b/create_data.py \
+  --input_location ../SemEval_2022_Task2-idiomaticity/SubTaskB \
+  --output_location data/annotations/semeval-2022_task02_idiomacity/subtask_b \
+  --sts_dataset_path stsbenchmark.tsv.gz
+```
+
+_Train_
+
+```shell
+bash run_semeval2022_task2b.sh data
 ```
 
 ## Acknowledgement
+
 We recommend the following repos:
+
 * [lexcomp](https://github.com/vered1986/lexcomp)
 * [allennlp-models](https://github.com/allenai/allennlp-models)

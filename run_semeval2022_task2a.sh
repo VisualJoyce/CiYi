@@ -23,7 +23,6 @@ declare -a splits=(eval test)
 #declare -a phase=(practice evaluation)
 PHASE_NAME=evaluation
 
-
 cd "$WORK_DIR" || exit
 
 function inference() {
@@ -31,13 +30,16 @@ function inference() {
   for d in "${datasets[@]}"; do
     for s in "${splits[@]}"; do
       MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/"$PHASE_NAME"/"$d"/finetune/"$1"
-      TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR="$ANNOTATION_DIR"/"$PHASE_NAME"/"$d" \
-        allennlp predict \
-        "${MODEL_PATH}"/model.tar.gz \
-        "${ANNOTATION_DIR}"/"$PHASE_NAME"/"$d"/"$s".jsonl \
-        --predictor semeval-2022_task02_idiomacity_subtask_a \
-        --output-file "${MODEL_PATH}"/"$s"_predict.csv \
-        --include-package ciyi --cuda-device 0
+      PREDICT_OUTPUT="${MODEL_PATH}"/"$s"_predict.csv
+      if [ ! -f "$PREDICT_OUTPUT" ]; then
+        TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR="$ANNOTATION_DIR"/"$PHASE_NAME"/"$d" \
+          allennlp predict \
+          "${MODEL_PATH}"/model.tar.gz \
+          "${ANNOTATION_DIR}"/"$PHASE_NAME"/"$d"/"$s".jsonl \
+          --predictor semeval-2022_task02_idiomacity_subtask_a \
+          --output-file "$PREDICT_OUTPUT" \
+          --include-package ciyi --cuda-device 0
+      fi
     done
   done
 }
@@ -45,9 +47,9 @@ function inference() {
 function submission() {
   setting="${SUBMISSION_DIR}/$1"
   mkdir -p "$setting"
-  echo "ID,Language,Setting,Label" > "$setting"/task2_subtaska.csv
-  cat "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/ZeroShot/finetune/"$1"/test_predict.csv >> "$setting"/task2_subtaska.csv
-  cat "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/OneShot/finetune/"$1"/test_predict.csv >> "$setting"/task2_subtaska.csv
+  echo "ID,Language,Setting,Label" >"$setting"/task2_subtaska.csv
+  cat "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/ZeroShot/finetune/"$1"/test_predict.csv >>"$setting"/task2_subtaska.csv
+  cat "${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskA/evaluation/OneShot/finetune/"$1"/test_predict.csv >>"$setting"/task2_subtaska.csv
 }
 
 function train_endpoint() {
@@ -121,7 +123,6 @@ function train_others() {
   inference "$setting"
   submission "$setting"
 }
-
 
 for m in "${models[@]}"; do
   for l in "${layers[@]}"; do
