@@ -36,37 +36,49 @@ for m in "${models[@]}"; do
     PRETRAIN_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskB/pretrain/"$m"/"$l"/"$c"
     FINETUNE_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskB/finetune/"$m"/"$l"/"$c"
 
-    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/pretrain \
-      MODEL_NAME=$mp SEQ2VEC_ENCODER_TYPE=$c \
-      allennlp train ${CONFIGURATION_DIR}/pretrain.jsonnet \
-      -s "${PRETRAIN_MODEL_PATH}" \
-      --include-package ciyi
+    if [ ! -f "$PRETRAIN_MODEL_PATH"/model.tar.gz ]; then
+      rm -r "$PRETRAIN_MODEL_PATH"
+      TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/pretrain \
+        MODEL_NAME=$mp SEQ2VEC_ENCODER_TYPE=$c \
+        allennlp train ${CONFIGURATION_DIR}/pretrain.jsonnet \
+        -s "${PRETRAIN_MODEL_PATH}" \
+        --include-package ciyi
+    fi
 
     for s in "${splits[@]}"; do
-      allennlp predict \
-        "${PRETRAIN_MODEL_PATH}"/model.tar.gz \
-        "${ANNOTATION_DIR}"/predict/"$s".jsonl \
-        --predictor semeval-2022_task02_idiomacity_subtask_b \
-        --output-file "${PRETRAIN_MODEL_PATH}"/"$s"_predict.csv \
-        --include-package ciyi --cuda-device 0
+      PREDICT_OUTPUT="${PRETRAIN_MODEL_PATH}"/"$s"_predict.csv
+      if [ ! -f "$PREDICT_OUTPUT" ]; then
+        allennlp predict \
+          "${PRETRAIN_MODEL_PATH}"/model.tar.gz \
+          "${ANNOTATION_DIR}"/predict/"$s".jsonl \
+          --predictor semeval-2022_task02_idiomacity_subtask_b \
+          --output-file "${PREDICT_OUTPUT}" \
+          --include-package ciyi --cuda-device 0
+      fi
     done
 
     python3 ${CONFIGURATION_DIR}/update_data.py \
       --annotation_location "${ANNOTATION_DIR}"/finetune \
       --prediction_location "${PRETRAIN_MODEL_PATH}"
 
-    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/finetune \
-      MODEL_NAME=$mp SEQ2VEC_ENCODER_TYPE=$c \
-      allennlp train ${CONFIGURATION_DIR}/finetune.jsonnet \
-      -s "${FINETUNE_MODEL_PATH}" \
-      --include-package ciyi
+    if [ ! -f "$FINETUNE_MODEL_PATH"/model.tar.gz ]; then
+      rm -r "$FINETUNE_MODEL_PATH"
+      TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/finetune \
+        MODEL_NAME=$mp SEQ2VEC_ENCODER_TYPE=$c \
+        allennlp train ${CONFIGURATION_DIR}/finetune.jsonnet \
+        -s "${FINETUNE_MODEL_PATH}" \
+        --include-package ciyi
+    fi
 
-    allennlp predict \
-      "${FINETUNE_MODEL_PATH}"/model.tar.gz \
-      "${ANNOTATION_DIR}"/finetune/test.jsonl \
-      --predictor semeval-2022_task02_idiomacity_subtask_b \
-      --output-file "${FINETUNE_MODEL_PATH}"/test_predict.csv \
-      --include-package ciyi --cuda-device 0
+    FINETUNE_PREDICT_OUTPUT="${FINETUNE_MODEL_PATH}"/test_predict.csv
+    if [ ! -f "$FINETUNE_PREDICT_OUTPUT" ]; then
+      allennlp predict \
+        "${FINETUNE_MODEL_PATH}"/model.tar.gz \
+        "${ANNOTATION_DIR}"/finetune/test.jsonl \
+        --predictor semeval-2022_task02_idiomacity_subtask_b \
+        --output-file "${FINETUNE_PREDICT_OUTPUT}" \
+        --include-package ciyi --cuda-device 0
+    fi
 
     mkdir -p "$setting"
     echo "ID,Language,Setting,Sim" >"$setting"/task2_subtaskb.csv
