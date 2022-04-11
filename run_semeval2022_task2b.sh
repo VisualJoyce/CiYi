@@ -36,7 +36,7 @@ for m in "${models[@]}"; do
     PRETRAIN_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskB/pretrain/"$m"/"$l"/"$c"
     FINETUNE_MODEL_PATH="${OUTPUT_DIR}"/semeval-2022_task02_idiomacity/SubTaskB/finetune/"$m"/"$l"/"$c"
 
-    TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/pretrain \
+    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/pretrain \
       MODEL_NAME=$mp SEQ2VEC_ENCODER_TYPE=$c \
       allennlp train ${CONFIGURATION_DIR}/pretrain.jsonnet \
       -s "${PRETRAIN_MODEL_PATH}" \
@@ -55,7 +55,7 @@ for m in "${models[@]}"; do
       --annotation_location "${ANNOTATION_DIR}"/finetune \
       --prediction_location "${PRETRAIN_MODEL_PATH}"
 
-    TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/finetune \
+    TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/finetune \
       MODEL_NAME=$mp SEQ2VEC_ENCODER_TYPE=$c \
       allennlp train ${CONFIGURATION_DIR}/finetune.jsonnet \
       -s "${FINETUNE_MODEL_PATH}" \
