@@ -2,6 +2,7 @@ local TRANSFORMER_LAYER = std.extVar("TRANSFORMER_LAYER");
 local MODEL_NAME = std.extVar("MODEL_NAME");
 local ANNOTATION_DIR = std.extVar("ANNOTATION_DIR");
 local SEQ2VEC_ENCODER_TYPE = std.extVar("SEQ2VEC_ENCODER_TYPE");
+local BATCH_SIZE = if std.member(MODEL_NAME, 'xlm-roberta-large') then 64 else 64;
 
 {
   "dataset_reader": {
@@ -45,9 +46,10 @@ local SEQ2VEC_ENCODER_TYPE = std.extVar("SEQ2VEC_ENCODER_TYPE");
     }
   },
   "data_loader": {
+    "num_workers": 8,
     "batch_sampler": {
       "type": "bucket",
-      "batch_size": 64
+      "batch_size": BATCH_SIZE
     }
   },
   "trainer": {

@@ -128,5 +128,5 @@ class SpanDatasetReader(DatasetReader):
         return Instance(fields)
 
     def apply_token_indexers(self, instance: Instance) -> None:
-        instance.fields["sentence"]._token_indexers = self._token_indexers
-        instance.fields["span_text"]._token_indexers = self._token_indexers
+        instance["sentence"].token_indexers = self._token_indexers
+        instance["span_text"].token_indexers = self._token_indexers
