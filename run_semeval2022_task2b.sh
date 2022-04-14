@@ -71,8 +71,8 @@ function train_endpoint() {
         --include-package ciyi --cuda-device 0
     fi
 
-    inference "$setting"
-    submission "$setting"
+    inference "$finetune_setting"
+    submission "$finetune_setting"
   done
 }
 
@@ -91,15 +91,15 @@ function train_others() {
   if [ ! -f "$FINETUNE_MODEL_PATH"/model.tar.gz ]; then
     rm -r "$FINETUNE_MODEL_PATH"
     TOKENIZERS_PARALLELISM=false TRANSFORMER_LAYER=$l ANNOTATION_DIR=${ANNOTATION_DIR}/finetune \
-      MODEL_NAME=$mp MODEL_TYPE=$finetune_model_type SEQ2VEC_ENCODER_TYPE=$enc \
+      MODEL_NAME=$mp MODEL_TYPE=$f SEQ2VEC_ENCODER_TYPE=$enc \
       SPAN_EXTRACTOR_TYPE=$s \
       allennlp train ${CONFIGURATION_DIR}/finetune.jsonnet \
       -s "${FINETUNE_MODEL_PATH}" \
       --include-package ciyi
   fi
 
-  inference "$setting"
-  submission "$setting"
+  inference "$finetune_setting"
+  submission "$finetune_setting"
 }
 
 for m in "${models[@]}"; do
