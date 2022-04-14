@@ -58,6 +58,7 @@ def ensure_item(item):
         item['sentence2'] = item.pop('sentence_2')
     return item
 
+
 def create_predict(input_location, output_location):
     setting = 'pre_train'
     df_dev = pda.read_csv(os.path.join(input_location, 'EvaluationData', 'dev.csv'), sep=",")
