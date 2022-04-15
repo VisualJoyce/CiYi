@@ -113,7 +113,8 @@ class SpanEmbedder(Model):
         embedded_span1 = self._span_extractor(embedded_text1, span1)
         if len(embedded_text1.shape) == 3:
             embedded_span1 = embedded_span1.squeeze(1)
-        embedded_span2 = self._span_extractor(embedded_text2, span1)
+
+        embedded_span2 = self._span_extractor(embedded_text2, span2)
         if len(embedded_text1.shape) == 3:
             embedded_span2 = embedded_span2.squeeze(1)
 
