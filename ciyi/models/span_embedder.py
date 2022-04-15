@@ -60,7 +60,7 @@ class SpanEmbedder(Model):
         self._loss = nn.MSELoss()
         initializer(self)
 
-    def encode(self, sentence: Dict[str, torch.LongTensor]):
+    def encode(self, sentence: Dict[str, torch.LongTensor], span):
         embedded_text = self._text_field_embedder(sentence)
         sentence_mask = util.get_text_field_mask(sentence)
 
@@ -68,7 +68,14 @@ class SpanEmbedder(Model):
         if self._seq2seq_encoder:
             embedded_text = self._seq2seq_encoder(embedded_text, sentence_mask)
 
-        return self._seq2vec_encoder(embedded_text, mask=sentence_mask)
+        embedded_sent = self._seq2vec_encoder(embedded_text, mask=sentence_mask)
+
+        # Extract the span: shape = (batch_size, num_spans, feed_forward.input_dim())
+        embedded_span = self._span_extractor(embedded_text, span)
+        if len(embedded_span.shape) == 3:
+            embedded_span = embedded_span.squeeze(1)
+
+        return embedded_sent, embedded_span
 
     def forward(self,  # type: ignore
                 sentence1: Dict[str, torch.LongTensor],
@@ -105,18 +112,9 @@ class SpanEmbedder(Model):
             :param sentence2:
             :param metadata:
         """
-        embedded_text1 = self.encode(sentence1)
-        embedded_text2 = self.encode(sentence2)
-        output_dict = {'sentence_embedding': embedded_text1, "metadata": metadata}
-
-        # Extract the span: shape = (batch_size, num_spans, feed_forward.input_dim())
-        embedded_span1 = self._span_extractor(embedded_text1, span1)
-        if len(embedded_text1.shape) == 3:
-            embedded_span1 = embedded_span1.squeeze(1)
-
-        embedded_span2 = self._span_extractor(embedded_text2, span2)
-        if len(embedded_text1.shape) == 3:
-            embedded_span2 = embedded_span2.squeeze(1)
+        embedded_sent1, embedded_span1 = self.encode(sentence1, span1)
+        embedded_sent2, embedded_span2 = self.encode(sentence2, span2)
+        output_dict = {'sentence_embedding': embedded_sent1, "metadata": metadata}
 
         sim = torch.cosine_similarity(embedded_span1, embedded_span2)
         output_dict["sim"] = sim
