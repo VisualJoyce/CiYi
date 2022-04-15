@@ -61,10 +61,12 @@ class SpanPairDatasetReader(DatasetReader):
         doc = nlp(sentence)
         span_doc = nlp(span)
 
-        score = np.zeros(len(doc) - 1)
+        score = np.zeros(len(doc) - len(span_doc))
         for i, text_window in enumerate(windowed(doc, len(span_doc))):
-            for t, s in zip(text_window, [t for t in span_doc]):
-                score[i] += distance(t.lower_, s.lower_)
+            if i < len(doc) - len(span_doc):
+                for t, s in zip(text_window, [t for t in span_doc]):
+                    score[i] += distance(t.lower_, s.lower_)
+
         start_idx = score.argmin()
         start_token = doc[start_idx]
         offset = start_token.idx
@@ -117,7 +119,7 @@ class SpanPairDatasetReader(DatasetReader):
         tokenized_span1 = self._tokenizer.tokenize(span1_text)
         span1_text_field = TextField(tokenized_span1)
 
-        if example['MWE2'] not in ['None', '']:
+        if example['MWE2'] in ['None', '']:
             start = span1['start']
             end = len(example['sentence2'].split()) - (len(span1['sentence'].split()) - span1['end'])
             example['MWE2'] = ' '.join(example['sentence2'].split()[start:end+1])
@@ -130,12 +132,12 @@ class SpanPairDatasetReader(DatasetReader):
         tokenized_span2 = self._tokenizer.tokenize(span2_text)
         span2_text_field = TextField(tokenized_span2)
 
-        fields = {
+        fields.update({
             'span1': span1_field,
             'span1_text': span1_text_field,
             'span2': span2_field,
             'span2_text': span2_text_field
-        }
+        })
 
         label = example.get('label')
         if label is not None:

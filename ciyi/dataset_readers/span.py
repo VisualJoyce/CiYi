@@ -59,10 +59,12 @@ class SpanDatasetReader(DatasetReader):
         doc = nlp(sentence)
         span_doc = nlp(span)
 
-        score = np.zeros(len(doc) - 1)
+        score = np.zeros(len(doc) - len(span_doc))
         for i, text_window in enumerate(windowed(doc, len(span_doc))):
-            for t, s in zip(text_window, [t for t in span_doc]):
-                score[i] += distance(t.lower_, s.lower_)
+            if i < len(doc) - len(span_doc):
+                for t, s in zip(text_window, [t for t in span_doc]):
+                    score[i] += distance(t.lower_, s.lower_)
+
         start_idx = score.argmin()
         start_token = doc[start_idx]
         offset = start_token.idx
