@@ -1,2 +1,2 @@
-from ciyi.dataset_readers.span import SpanDatasetReader
 from ciyi.dataset_readers.sentence_pair import SentencePairDatasetReader
+from ciyi.dataset_readers.span import SpanDatasetReader

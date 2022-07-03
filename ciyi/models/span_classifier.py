@@ -4,7 +4,7 @@ import numpy as np
 import torch
 from allennlp.data import Vocabulary
 from allennlp.models.model import Model
-from allennlp.modules import FeedForward, TextFieldEmbedder, Seq2SeqEncoder, Seq2VecEncoder
+from allennlp.modules import FeedForward, TextFieldEmbedder, Seq2SeqEncoder
 from allennlp.modules.span_extractors import SpanExtractor
 from allennlp.nn import InitializerApplicator
 from allennlp.nn import util

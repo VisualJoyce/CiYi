@@ -9,7 +9,6 @@ from allennlp.data.fields import TextField, MetadataField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer
 from allennlp.data.tokenizers import WhitespaceTokenizer
-from overrides import overrides
 
 from ciyi.data.fields.float_field import FloatField
 
@@ -65,7 +64,6 @@ class SentencePairDatasetReader(DatasetReader):
                 except TypeError:
                     logger.warning(f"Parsing failed: {example}")
 
-    @overrides
     def text_to_instance(self, example: dict) -> Instance:
         lang = example['lang'].lower()
         nlp = self.nlp_dict.get(lang, self.nlp_dict['en'])

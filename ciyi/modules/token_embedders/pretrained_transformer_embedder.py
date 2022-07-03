@@ -7,7 +7,6 @@ from allennlp.data.tokenizers import PretrainedTransformerTokenizer
 from allennlp.modules.scalar_mix import ScalarMix
 from allennlp.modules.token_embedders.token_embedder import TokenEmbedder
 from allennlp.nn.util import batched_index_select
-from overrides import overrides
 from transformers import XLNetConfig
 
 
@@ -115,7 +114,6 @@ class PretrainedTransformerEmbedder(TokenEmbedder):
             for param in self.transformer_model.parameters():
                 param.requires_grad = False
 
-    @overrides
     def get_output_dim(self):
         return self.output_dim
 
@@ -127,7 +125,6 @@ class PretrainedTransformerEmbedder(TokenEmbedder):
         else:
             return 0
 
-    @overrides
     def forward(
             self,
             token_ids: torch.LongTensor,

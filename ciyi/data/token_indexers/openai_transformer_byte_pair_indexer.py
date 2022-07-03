@@ -10,7 +10,6 @@ from allennlp.common.util import pad_sequence_to_length
 from allennlp.data import Token
 from allennlp.data.token_indexers.token_indexer import TokenIndexer
 from allennlp.data.vocabulary import Vocabulary
-from overrides import overrides
 
 
 def text_standardize(text):
@@ -105,7 +104,6 @@ class OpenaiTransformerBytePairIndexer(TokenIndexer):
         self.cache: Dict[str, List[str]] = {}
         self.n_ctx = n_ctx
 
-    @overrides
     def count_vocab_items(self, token: Token, counter: Dict[str, Dict[str, int]]):
         # If we only use pretrained models, we don't need to do anything here.
         pass
@@ -192,7 +190,6 @@ class OpenaiTransformerBytePairIndexer(TokenIndexer):
             vocabulary._token_to_index[self._namespace][word] = idx
             vocabulary._index_to_token[self._namespace][idx] = word
 
-    @overrides
     def tokens_to_indices(self,
                           tokens: List[Token],
                           vocabulary: Vocabulary) -> Dict[str, List[int]]:
@@ -230,11 +227,9 @@ class OpenaiTransformerBytePairIndexer(TokenIndexer):
             # "mask": [1 for _ in offsets]
         }
 
-    @overrides
     def get_padding_lengths(self, token: int) -> Dict[str, int]:  # pylint: disable=unused-argument
         return {}
 
-    @overrides
     def as_padded_tensor_dict(self,
                               tokens: Dict[str, List[int]],
                               padding_lengths: Dict[str, int]) -> Dict[

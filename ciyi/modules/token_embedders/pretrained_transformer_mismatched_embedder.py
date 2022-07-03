@@ -1,8 +1,6 @@
 from typing import Optional, Dict, Any, Union
 
-from overrides import overrides
 import torch
-
 from allennlp.modules.token_embedders import TokenEmbedder
 from allennlp.nn import util
 
@@ -69,11 +67,9 @@ class PretrainedTransformerMismatchedEmbedder(TokenEmbedder):
             transformer_kwargs=transformer_kwargs,
         )
 
-    @overrides
     def get_output_dim(self):
         return self._matched_embedder.get_output_dim()
 
-    @overrides
     def forward(
         self,
         token_ids: torch.LongTensor,

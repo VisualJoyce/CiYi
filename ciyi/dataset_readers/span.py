@@ -12,7 +12,6 @@ from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import TokenIndexer
 from allennlp.data.tokenizers import WhitespaceTokenizer
 from more_itertools import windowed
-from overrides import overrides
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +93,6 @@ class SpanDatasetReader(DatasetReader):
                 except TypeError:
                     logger.warning(f"Parsing failed: {example}")
 
-    @overrides
     def text_to_instance(self, example: dict) -> Instance:
         if not all([k in example for k in ('start', 'end')]):
             lang = example['lang'].lower()

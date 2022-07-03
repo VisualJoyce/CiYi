@@ -8,7 +8,6 @@ from allennlp.data.fields import Field, TextField, SequenceLabelField
 from allennlp.data.instance import Instance
 from allennlp.data.token_indexers import SingleIdTokenIndexer, TokenIndexer
 from allennlp.data.tokenizers import Token
-from overrides import overrides
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +53,6 @@ class SequenceReader(DatasetReader):
                 sentence_tags = curr_example_json['sentence_tags']
                 yield self.text_to_instance(sentence_words, sentence_tags)
 
-    @overrides
     def text_to_instance(self, sentence_words: List[Token], sentence_tags: List[str] = None) -> Instance:
         fields: Dict[str, Field] = {}
         sentence_field = TextField([Token(t) for t in sentence_words], self._token_indexers)
