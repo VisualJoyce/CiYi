@@ -28,6 +28,22 @@ A repo for lexical semantics
 
 Multilingual Idiomaticity Detection and Sentence Embedding
 
+```bibtex
+@inproceedings{tan-2022-hijonlp,
+    title = "{H}i{J}o{NLP} at {S}em{E}val-2022 Task 2: Detecting Idiomaticity of Multiword Expressions using Multilingual Pretrained Language Models",
+    author = "Tan, Minghuan",
+    booktitle = "Proceedings of the 16th International Workshop on Semantic Evaluation (SemEval-2022)",
+    month = jul,
+    year = "2022",
+    address = "Seattle, United States",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2022.semeval-1.23",
+    doi = "10.18653/v1/2022.semeval-1.23",
+    pages = "190--196",
+    abstract = "This paper describes an approach to detect idiomaticity only from the contextualized representation of a MWE over multilingual pretrained language models.Our experiments find that larger models are usually more effective in idiomaticity detection. However, using a higher layer of the model may not guarantee a better performance.In multilingual scenarios, the convergence of different languages are not consistent and rich-resource languages have big advantages over other languages.",
+}
+```
+
 ### Subtask A
 
 _Data Preprocess_
